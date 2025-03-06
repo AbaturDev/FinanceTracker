@@ -1,5 +1,8 @@
 ﻿namespace FinanceTracker.Domain.Common;
 
-internal abstract record BaseEntity
+public abstract record BaseEntity
 {
+    public int Id { get; init; }
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
