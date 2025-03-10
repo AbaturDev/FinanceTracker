@@ -46,7 +46,7 @@ public class TransactionConfiguration : BaseEntityConfiguration<Transaction>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(t => t.SavingGoal)
-            .WithMany()
+            .WithMany(x => x.Transactions)
             .HasForeignKey(t => t.SavingGoalId)
             .OnDelete(DeleteBehavior.Restrict);
 

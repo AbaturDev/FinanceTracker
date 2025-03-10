@@ -12,10 +12,11 @@ public sealed record ExpensesPlanner : BaseEntity
     public decimal Budget { get; set; }
     public decimal SpentAmount { get; set; }
     public ExchangeRate? OriginalExchangeRate { get; set; }
+    public Category? Category { get; set; }
+
     public ResetInterval ResetInterval { get; set; }
     public required int UserId { get; set; }
-
-    public Category? Category { get; set; }
+    
     public required User User { get; set; }
     public ICollection<Transaction>? Transactions { get; set; }
 }
