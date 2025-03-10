@@ -1,4 +1,5 @@
-﻿using FinanceTracker.Domain.Entities;
+﻿using FinanceTracker.Domain.Common;
+using FinanceTracker.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.Infrastructure.Context;
@@ -18,8 +19,8 @@ public class FinanceTrackerDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.ApplyConfigurationsFromAssembly(typeof(FinanceTrackerDbContext).Assembly);
-        
         base.OnModelCreating(builder);
+        
+        builder.ApplyConfigurationsFromAssembly(typeof(BaseEntityConfiguration<>).Assembly);
     }
 }

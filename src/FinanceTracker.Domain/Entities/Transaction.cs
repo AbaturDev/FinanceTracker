@@ -43,12 +43,12 @@ public class TransactionConfiguration : BaseEntityConfiguration<Transaction>
         builder.HasOne(t => t.UserMonthlyBudget)
             .WithMany()
             .HasForeignKey(t => t.UserMonthlyBudgetId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(t => t.SavingGoal)
             .WithMany()
             .HasForeignKey(t => t.SavingGoalId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(t => t.ExpensesPlanner)
             .WithMany(x => x.Transactions)
