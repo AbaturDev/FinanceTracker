@@ -14,7 +14,7 @@ public sealed record SavingGoal : BaseEntity
     public DateOnly? DueDate { get; set; }
     public ExchangeRate? OriginalExchangeRate { get; set; }
     public required int UserId { get; set; }
-    
+
     public required User User { get; set; }
     public ICollection<Transaction>? Transactions { get; set; }
 }
@@ -24,20 +24,20 @@ public class SavingGoalConfiguration : BaseEntityConfiguration<SavingGoal>
     public override void Configure(EntityTypeBuilder<SavingGoal> builder)
     {
         base.Configure(builder);
-        
+
         builder.OwnsOne(x => x.OriginalExchangeRate);
-        
+
         builder.Property(x => x.CurrentBalance)
             .HasPrecision(18, 2);
-        
+
         builder.Property(x => x.AmountOfMoney)
             .HasPrecision(18, 2);
-        
+
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.HasMany(x => x.Transactions)
             .WithOne(x => x.SavingGoal)
             .HasForeignKey(x => x.SavingGoalId)

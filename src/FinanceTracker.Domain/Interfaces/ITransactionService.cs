@@ -6,4 +6,4 @@ namespace FinanceTracker.Domain.Interfaces;
 public interface ITransactionService
 {
     Task<Result<int>> CreateTransactionAsync(CreateTransactionDto dto);
-}   
+}

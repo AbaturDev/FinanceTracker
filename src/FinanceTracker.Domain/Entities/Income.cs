@@ -23,12 +23,12 @@ public class IncomeConfiguration : BaseEntityConfiguration<Income>
     public override void Configure(EntityTypeBuilder<Income> builder)
     {
         base.Configure(builder);
-        
+
         builder.OwnsOne(x => x.OriginalExchangeRate);
-        
+
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);
-        
+
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)

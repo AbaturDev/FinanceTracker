@@ -1,3 +1,3 @@
 namespace FinanceTracker.Domain.Dtos.Transactions;
 
-public record CreateTransactionDto();
+public record CreateTransactionDto;

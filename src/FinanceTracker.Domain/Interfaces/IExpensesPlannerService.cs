@@ -9,7 +9,9 @@ public interface IExpensesPlannerService
 {
     Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesAsync(PageQueryFilter filter);
     Task<Result<PaginatedResponse<TransactionDto>>> GetExpensesPlannerTransactionsAsync(int id, PageQueryFilter filter);
+
     Task<Result<int>> CreateExpensesPlannerAsync(CreateExpensesPlannerDto dto);
+
     //Task<Result> UpdateExpensesPlannerAsync(int id);
     Task<Result> DeleteExpensesPlannerAsync(int id);
 }

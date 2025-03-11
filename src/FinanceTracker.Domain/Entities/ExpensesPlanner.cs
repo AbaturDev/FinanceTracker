@@ -16,7 +16,7 @@ public sealed record ExpensesPlanner : BaseEntity
 
     public ResetInterval ResetInterval { get; set; }
     public required int UserId { get; set; }
-    
+
     public required User User { get; set; }
     public ICollection<Transaction>? Transactions { get; set; }
 }
@@ -26,10 +26,10 @@ public class ExpensesPlannerConfiguration : BaseEntityConfiguration<ExpensesPlan
     public override void Configure(EntityTypeBuilder<ExpensesPlanner> builder)
     {
         base.Configure(builder);
-        
+
         builder.OwnsOne(x => x.OriginalExchangeRate);
         builder.OwnsOne(x => x.Category);
-        
+
         builder.Property(x => x.Budget)
             .HasPrecision(18, 2);
 
