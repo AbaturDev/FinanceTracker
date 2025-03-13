@@ -1,45 +1,41 @@
 using FinanceTracker.Infrastructure.Context;
+using FinanceTracker.NbpRates;
+using FinanceTracker.NbpRates.Abstractions;
+using FinanceTracker.NbpRates.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<FinanceTrackerDbContext>(options => 
+builder.Services.AddDbContext<FinanceTrackerDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.AddNbpIntegration();
 
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapGet("/weatherforecast", async (INbpApi nbpApi) =>
+    {
+        var end = DateOnly.FromDateTime(DateTime.Now);
+        var start = DateOnly.FromDateTime(DateTime.Now.AddDays(-3));
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+        var request = new RequestExchangeRate()
+        {
+            CurrencyCode = "USD",
+            StartDate = start,
+            EndDate = end,
+        };
+        
+        var test = await nbpApi.GetExchangeRateAsync(request);
+        
+        return test;
+    })
+    .WithName("GetWeatherForecast");
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

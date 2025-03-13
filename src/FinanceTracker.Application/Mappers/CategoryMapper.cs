@@ -7,16 +7,13 @@ public static class CategoryMapper
 {
     public static CategoryDto? MapToCategoryDto(Category? category)
     {
-        if (category == null)
-        {
-            return null;
-        }
+        if (category == null) return null;
 
         var categoryDto = new CategoryDto
         {
-            Name = category.Name,
+            Name = category.Name
         };
-        
+
         return categoryDto;
     }
 }

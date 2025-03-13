@@ -20,7 +20,7 @@ public class FinanceTrackerDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         builder.ApplyConfigurationsFromAssembly(typeof(BaseEntityConfiguration<>).Assembly);
     }
 }

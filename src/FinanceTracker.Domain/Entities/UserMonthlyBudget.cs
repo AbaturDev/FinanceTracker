@@ -21,7 +21,7 @@ public class UserMonthlyBudgetConfiguration : BaseEntityConfiguration<UserMonthl
     public override void Configure(EntityTypeBuilder<UserMonthlyBudget> builder)
     {
         base.Configure(builder);
-        
+
         builder.OwnsOne(x => x.OriginalExchangeRate);
 
         builder.Property(x => x.TotalBudget)

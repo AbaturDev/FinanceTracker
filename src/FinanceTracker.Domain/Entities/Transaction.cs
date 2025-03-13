@@ -31,10 +31,10 @@ public class TransactionConfiguration : BaseEntityConfiguration<Transaction>
         base.Configure(builder);
 
         builder.OwnsOne(x => x.ExchangeRate);
-        
+
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);
-        
+
         builder.HasOne(t => t.User)
             .WithMany()
             .HasForeignKey(t => t.UserId)

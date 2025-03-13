@@ -1,3 +1,3 @@
 namespace FinanceTracker.Domain.Dtos.SavingGoals;
 
-public record CreateSavingGoalDto();
+public record CreateSavingGoalDto;
