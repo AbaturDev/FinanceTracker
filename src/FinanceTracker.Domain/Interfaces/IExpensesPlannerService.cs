@@ -1,4 +1,4 @@
-using FinanceTracker.Application.Common.Pagination;
+using FinanceTracker.Domain.Common.Pagination;
 using FinanceTracker.Domain.Dtos.ExpensesPlanners;
 using FinanceTracker.Domain.Dtos.Transactions;
 using FluentResults;

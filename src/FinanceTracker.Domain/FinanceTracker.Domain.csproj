@@ -15,8 +15,4 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\FinanceTracker.Application\FinanceTracker.Application.csproj"/>
-    </ItemGroup>
-
 </Project>

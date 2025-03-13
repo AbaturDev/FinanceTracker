@@ -1,4 +1,4 @@
-namespace FinanceTracker.Application.Common.Pagination;
+namespace FinanceTracker.Domain.Common.Pagination;
 
 public sealed record PaginatedResponse<T>
 {
