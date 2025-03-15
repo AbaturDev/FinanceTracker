@@ -12,7 +12,7 @@ public sealed record Income : BaseEntity
     public bool RegularIncome { get; set; }
     public bool IsActiveThisMonth { get; set; }
     public ExchangeRate? OriginalExchangeRate { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
 
     public required User User { get; set; }
     public ICollection<UserMonthlyBudget>? UserMonthlyBudgets { get; set; }

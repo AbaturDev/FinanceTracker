@@ -13,7 +13,7 @@ public sealed record Transaction : BaseEntity
     public decimal Amount { get; set; }
     public ExchangeRate? ExchangeRate { get; set; }
     public TransactionSource TransactionSource { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
     public int? UserMonthlyBudgetId { get; set; }
     public int? SavingGoalId { get; set; }
     public int? ExpensesPlannerId { get; set; }
