@@ -10,7 +10,7 @@ public sealed record UserMonthlyBudget : BaseEntity
     public DateOnly Date { get; set; }
     public decimal TotalBudget { get; set; }
     public ExchangeRate? OriginalExchangeRate { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
 
     public required User User { get; set; }
     public ICollection<Income>? Incomes { get; set; }
@@ -22,7 +22,9 @@ public class UserMonthlyBudgetConfiguration : BaseEntityConfiguration<UserMonthl
     {
         base.Configure(builder);
 
-        builder.OwnsOne(x => x.OriginalExchangeRate);
+        builder.OwnsOne(x => x.OriginalExchangeRate)
+            .Property(e => e.Mid)
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.TotalBudget)
             .HasPrecision(18, 2);

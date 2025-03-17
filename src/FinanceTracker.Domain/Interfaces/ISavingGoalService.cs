@@ -7,11 +7,11 @@ namespace FinanceTracker.Domain.Interfaces;
 
 public interface ISavingGoalService
 {
-    Task<Result<PaginatedResponse<SavingGoalDto>>> GetSavingGoalsAsync(PageQueryFilter filter);
-    Task<Result<PaginatedResponse<TransactionDto>>> GetSavingGoalTransactionsAsync(int id, PageQueryFilter filter);
+    Task<Result<PaginatedResponse<SavingGoalDto>>> GetSavingGoalsAsync(PageQueryFilter filter, CancellationToken ct);
+    Task<Result<PaginatedResponse<TransactionDto>>> GetSavingGoalTransactionsAsync(int id, PageQueryFilter filter, CancellationToken ct);
 
-    Task<Result<int>> CreateSavingGoalAsync(CreateSavingGoalDto dto);
+    Task<Result<int>> CreateSavingGoalAsync(CreateSavingGoalDto dto, CancellationToken ct);
 
-    // Task<Result> UpdateSavingGoalAsync(int id);
-    Task<Result> DeleteSavingGoalAsync(int id);
+    // Task<Result> UpdateSavingGoalAsync(int id, CancellationToken ct);
+    Task<Result> DeleteSavingGoalAsync(int id, CancellationToken ct);
 }

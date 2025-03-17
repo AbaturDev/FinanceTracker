@@ -13,7 +13,7 @@ public sealed record Transaction : BaseEntity
     public decimal Amount { get; set; }
     public ExchangeRate? ExchangeRate { get; set; }
     public TransactionSource TransactionSource { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
     public int? UserMonthlyBudgetId { get; set; }
     public int? SavingGoalId { get; set; }
     public int? ExpensesPlannerId { get; set; }
@@ -30,7 +30,9 @@ public class TransactionConfiguration : BaseEntityConfiguration<Transaction>
     {
         base.Configure(builder);
 
-        builder.OwnsOne(x => x.ExchangeRate);
+        builder.OwnsOne(x => x.ExchangeRate)
+            .Property(e => e.Mid)
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.Amount)
             .HasPrecision(18, 2);

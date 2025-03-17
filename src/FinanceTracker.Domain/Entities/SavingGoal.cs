@@ -13,7 +13,7 @@ public sealed record SavingGoal : BaseEntity
     public required string Goal { get; set; }
     public DateOnly? DueDate { get; set; }
     public ExchangeRate? OriginalExchangeRate { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
 
     public required User User { get; set; }
     public ICollection<Transaction>? Transactions { get; set; }
@@ -25,8 +25,10 @@ public class SavingGoalConfiguration : BaseEntityConfiguration<SavingGoal>
     {
         base.Configure(builder);
 
-        builder.OwnsOne(x => x.OriginalExchangeRate);
-
+        builder.OwnsOne(x => x.OriginalExchangeRate)
+            .Property(e => e.Mid)
+            .HasPrecision(18, 2);
+        
         builder.Property(x => x.CurrentBalance)
             .HasPrecision(18, 2);
 

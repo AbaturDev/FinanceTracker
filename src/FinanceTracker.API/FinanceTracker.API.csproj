@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FinanceTracker.Application\FinanceTracker.Application.csproj" />
         <ProjectReference Include="..\FinanceTracker.Infrastructure\FinanceTracker.Infrastructure.csproj"/>
         <ProjectReference Include="..\FinanceTracker.NbpRates\FinanceTracker.NbpRates.csproj" />
     </ItemGroup>

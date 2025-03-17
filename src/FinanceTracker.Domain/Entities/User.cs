@@ -1,12 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using FinanceTracker.Domain.Common;
+using Microsoft.AspNetCore.Identity;
 
 namespace FinanceTracker.Domain.Entities;
 
-public sealed record User : BaseEntity
+public sealed class User : IdentityUser<Guid>
 {
-    public required string Name { get; set; }
-    public required string Surname { get; set; }
-    public required string Email { get; set; }
-    public required string Password { get; set; }
+    [MaxLength(10)]
     public string CurrencyCode { get; set; } = "PLN";
 }
