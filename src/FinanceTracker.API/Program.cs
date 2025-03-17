@@ -8,7 +8,6 @@ using FinanceTracker.NbpRates;
 using FinanceTracker.NbpRates.Abstractions;
 using FinanceTracker.NbpRates.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -85,8 +84,16 @@ app.MapGet("/api/nbp", async (INbpApi nbpApi) =>
     };
 
     var test = await nbpApi.GetExchangeRateAsync(request);
-
+    
     return test;
+})
+.RequireAuthorization();
+
+app.MapGet("/userId", (IUserContextService userContext) =>
+{
+    var id = userContext.GetCurrentUserId();
+
+    return id;
 })
 .RequireAuthorization();
 

@@ -4,6 +4,6 @@ namespace FinanceTracker.Domain.Interfaces;
 
 public interface IUserContextService
 {
-    ClaimsPrincipal GetCurrentUser();
-    int? GetCurrentUserId();
+    ClaimsPrincipal? GetCurrentUser();
+    Guid? GetCurrentUserId();
 }

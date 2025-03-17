@@ -16,5 +16,6 @@ public static class Setup
         builder.Services.AddSingleton(jwtOptions);
 
         builder.Services.AddScoped<IAccountService, AccountService>();
+        builder.Services.AddScoped<IUserContextService, UserContextService>();
     }
 }
