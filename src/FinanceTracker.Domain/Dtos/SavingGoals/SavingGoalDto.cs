@@ -13,5 +13,5 @@ public sealed record SavingGoalDto
     public required string Goal { get; set; }
     public DateOnly? DueDate { get; set; }
     public ExchangeRateDto? OriginalExchangeRate { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
 }

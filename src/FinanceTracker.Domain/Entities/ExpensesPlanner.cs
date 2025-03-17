@@ -17,7 +17,7 @@ public sealed record ExpensesPlanner : BaseEntity
     public ResetInterval ResetInterval { get; set; }
     public required Guid UserId { get; set; }
 
-    public required User User { get; set; }
+    public User? User { get; set; }
     public ICollection<Transaction>? Transactions { get; set; }
 }
 

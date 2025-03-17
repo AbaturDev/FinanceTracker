@@ -17,5 +17,6 @@ public static class Setup
 
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IUserContextService, UserContextService>();
+        builder.Services.AddScoped<IExpensesPlannerService, ExpensesPlannerService>();
     }
 }

@@ -13,8 +13,5 @@ public sealed record TransactionDto
     public decimal Amount { get; set; }
     public ExchangeRateDto? ExchangeRate { get; set; }
     public TransactionSource TransactionSource { get; set; }
-    public required int UserId { get; set; }
-    public int? UserMonthlyBudgetId { get; set; }
-    public int? SavingGoalId { get; set; }
-    public int? ExpensesPlannerId { get; set; }
+    public required Guid UserId { get; set; }
 }
