@@ -25,8 +25,10 @@ public class SavingGoalConfiguration : BaseEntityConfiguration<SavingGoal>
     {
         base.Configure(builder);
 
-        builder.OwnsOne(x => x.OriginalExchangeRate);
-
+        builder.OwnsOne(x => x.OriginalExchangeRate)
+            .Property(e => e.Mid)
+            .HasPrecision(18, 2);
+        
         builder.Property(x => x.CurrentBalance)
             .HasPrecision(18, 2);
 

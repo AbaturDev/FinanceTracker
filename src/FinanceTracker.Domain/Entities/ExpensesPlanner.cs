@@ -27,7 +27,10 @@ public class ExpensesPlannerConfiguration : BaseEntityConfiguration<ExpensesPlan
     {
         base.Configure(builder);
 
-        builder.OwnsOne(x => x.OriginalExchangeRate);
+        builder.OwnsOne(x => x.OriginalExchangeRate)
+            .Property(e => e.Mid)
+            .HasPrecision(18, 2);
+        
         builder.OwnsOne(x => x.Category);
 
         builder.Property(x => x.Budget)

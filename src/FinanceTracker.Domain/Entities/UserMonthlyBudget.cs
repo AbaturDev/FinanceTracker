@@ -22,7 +22,9 @@ public class UserMonthlyBudgetConfiguration : BaseEntityConfiguration<UserMonthl
     {
         base.Configure(builder);
 
-        builder.OwnsOne(x => x.OriginalExchangeRate);
+        builder.OwnsOne(x => x.OriginalExchangeRate)
+            .Property(e => e.Mid)
+            .HasPrecision(18, 2);
 
         builder.Property(x => x.TotalBudget)
             .HasPrecision(18, 2);
