@@ -64,7 +64,7 @@ public class AccountService : IAccountService
             return Result.Fail("Email is already taken");
         }
         
-        var user = new User()
+        var user = new User
         {
             UserName = registerDto.UserName,
             Email = registerDto.Email,

@@ -23,7 +23,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
         _userContext = userContext;
     }
     
-    public async Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesAsync(PageQueryFilter filter, CancellationToken ct)
+    public async Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesPlannersAsync(PageQueryFilter filter, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
         
@@ -96,7 +96,6 @@ public class ExpensesPlannerService : IExpensesPlannerService
 
     public async Task<Result<int>> CreateExpensesPlannerAsync(CreateExpensesPlannerDto dto, CancellationToken ct)
     {
-        //zmienic i pobrac calego usera, zeby miec tez jego currency code!!!
         var userId = _userContext.GetCurrentUserId();
 
         if (userId == null)
@@ -112,21 +111,15 @@ public class ExpensesPlannerService : IExpensesPlannerService
             ResetInterval = dto.ResetInterval,
             UserId = userId.Value,
         };
-        
-        
-        //mmoze zrobic utilsa bo praktycznie wszedzie bedzie to samo srpawdzaanie + dodac cache
-        if (dto.CurrencyCode == "PLN")
-        {
-            var exchangeRate = new ExchangeRate
-            {
-                CurrencyCode = dto.CurrencyCode,
-                Mid = 1,
-                Date = DateOnly.FromDateTime(DateTime.UtcNow),
-            };
-            
-            expensePlanner.OriginalExchangeRate = exchangeRate;
-        }
 
+        if (!string.IsNullOrEmpty(dto.CategoryName))
+        {
+            expensePlanner.Category = new Category
+            {
+                Name = dto.CategoryName,
+            };    
+        }
+        
         _dbContext.ExpensesPlanners.Add(expensePlanner);
         await _dbContext.SaveChangesAsync(ct);
         
