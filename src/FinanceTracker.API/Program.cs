@@ -1,15 +1,13 @@
 using System.Text;
+using FinanceTracker.API.Extensions;
 using FinanceTracker.Application;
-using FinanceTracker.Domain.Dtos.Account;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Infrastructure.Context;
 using FinanceTracker.NbpRates;
 using FinanceTracker.NbpRates.Abstractions;
 using FinanceTracker.NbpRates.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -59,17 +57,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapPost("/register", async (IAccountService test, CancellationToken ct, [FromBody] RegisterDto dto) => {
-    await test.RegisterAsync(dto, ct);
-})
-.AllowAnonymous();
-
-app.MapGet("/login", async (IAccountService test, CancellationToken ct, [FromBody] LoginDto dto) =>
-{
-    var token = await test.LoginAsync(dto, ct);
-    return token.Value;
-})
-.AllowAnonymous();
+app.RegisterEndpoints();
 
 app.MapGet("/api/nbp", async (INbpApi nbpApi) =>
 {
@@ -86,14 +74,6 @@ app.MapGet("/api/nbp", async (INbpApi nbpApi) =>
     var test = await nbpApi.GetExchangeRateAsync(request);
     
     return test;
-})
-.RequireAuthorization();
-
-app.MapGet("/userId", (IUserContextService userContext) =>
-{
-    var id = userContext.GetCurrentUserId();
-
-    return id;
 })
 .RequireAuthorization();
 

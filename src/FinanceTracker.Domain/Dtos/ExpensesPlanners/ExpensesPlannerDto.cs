@@ -14,5 +14,5 @@ public sealed record ExpensesPlannerDto
     public ExchangeRateDto? OriginalExchangeRate { get; set; }
     public CategoryDto? Category { get; set; }
     public ResetInterval ResetInterval { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
 }

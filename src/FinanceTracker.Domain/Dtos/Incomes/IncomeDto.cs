@@ -12,5 +12,5 @@ public sealed record IncomeDto
     public bool RegularIncome { get; set; }
     public bool IsActiveThisMonth { get; set; }
     public ExchangeRateDto? OriginalExchangeRate { get; set; }
-    public required int UserId { get; set; }
+    public required Guid UserId { get; set; }
 }

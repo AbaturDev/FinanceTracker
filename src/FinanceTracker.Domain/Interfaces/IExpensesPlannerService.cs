@@ -7,11 +7,9 @@ namespace FinanceTracker.Domain.Interfaces;
 
 public interface IExpensesPlannerService
 {
-    Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesAsync(PageQueryFilter filter, CancellationToken ct);
+    Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesPlannersAsync(PageQueryFilter filter, CancellationToken ct);
     Task<Result<PaginatedResponse<TransactionDto>>> GetExpensesPlannerTransactionsAsync(int id, PageQueryFilter filter, CancellationToken ct);
-
     Task<Result<int>> CreateExpensesPlannerAsync(CreateExpensesPlannerDto dto, CancellationToken ct);
-
-    //Task<Result> UpdateExpensesPlannerAsync(int id, CancellationToken ct);
+    Task<Result> UpdateExpensesPlannerAsync(UpdateExpensesPlannerDto dto, int id, CancellationToken ct);
     Task<Result> DeleteExpensesPlannerAsync(int id, CancellationToken ct);
 }

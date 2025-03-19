@@ -8,4 +8,11 @@ public static class PaginationUtils
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize);
     }
+
+    public static IEnumerable<T> Paginate<T>(this IEnumerable<T> source, int pageNumber, int pageSize)
+    {
+        return source
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+    }
 }
