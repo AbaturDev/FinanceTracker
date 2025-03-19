@@ -25,7 +25,7 @@ public static class AccountsApi
         {
             var result = await accountService.LoginAsync(dto, ct);
             
-            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
+            return result.IsSuccess ? Results.Text(result.Value, "text/plain") : Results.BadRequest(result.Errors);
         });
         
         return app;

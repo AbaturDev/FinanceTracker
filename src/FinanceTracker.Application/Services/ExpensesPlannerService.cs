@@ -28,6 +28,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
         var userId = _userContext.GetCurrentUserId();
         
         var baseQuery = _dbContext.ExpensesPlanners
+            .AsNoTracking()
             .Where(e => e.UserId == userId);
 
         var totalItemsCount = await baseQuery.CountAsync(ct);
@@ -37,6 +38,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
             {
                 Id = e.Id,
                 CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt,
                 Name = e.Name,
                 Budget = e.Budget,
                 SpentAmount = e.SpentAmount,
@@ -121,6 +123,44 @@ public class ExpensesPlannerService : IExpensesPlannerService
         }
         
         _dbContext.ExpensesPlanners.Add(expensePlanner);
+        await _dbContext.SaveChangesAsync(ct);
+        
+        return Result.Ok(expensePlanner.Id);
+    }
+
+    public async Task<Result> UpdateExpensesPlannerAsync(UpdateExpensesPlannerDto dto, int id, CancellationToken ct)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        
+        var expensesPlanner = await _dbContext.ExpensesPlanners
+            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
+        
+        if (expensesPlanner == null)
+        {
+            return Result.Fail("Expenses planner not found");
+        }
+        
+        if (!string.IsNullOrEmpty(dto.Name))
+        {
+            expensesPlanner.Name = dto.Name;
+        }
+
+        if (dto.Budget != null)
+        {
+            expensesPlanner.Budget = dto.Budget.Value;
+        }
+
+        if (!string.IsNullOrEmpty(dto.CategoryName) && expensesPlanner.Category != null)
+        {
+            expensesPlanner.Category.Name = dto.CategoryName;
+        }
+
+        if (dto.ResetInterval != null)
+        {
+            expensesPlanner.ResetInterval = dto.ResetInterval.Value;
+        }
+        
+        expensesPlanner.UpdatedAt = DateTime.UtcNow;
         await _dbContext.SaveChangesAsync(ct);
         
         return Result.Ok();
