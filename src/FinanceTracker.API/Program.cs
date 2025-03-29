@@ -77,4 +77,6 @@ app.MapGet("/api/nbp", async (INbpApi nbpApi) =>
 })
 .RequireAuthorization();
 
+await app.EnsureMonthlyBudgetsCreatedAsync();
+
 app.Run();
