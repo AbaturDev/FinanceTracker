@@ -9,6 +9,6 @@ public static class EnsureBudgetsCreatedExtensions
         using var scope = app.ApplicationServices.CreateScope();
         var userMonthlyBudgetService = scope.ServiceProvider.GetRequiredService<IUserMonthlyBudgetService>();
 
-        await userMonthlyBudgetService.EnsureCreatedAsync(new CancellationToken());
+        await userMonthlyBudgetService.EnsureCreatedAsync(CancellationToken.None);
     }
 }

@@ -47,6 +47,10 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         
             await _dbContext.UserMonthlyBudgets.AddAsync(budget, ct);
             await _dbContext.SaveChangesAsync(ct);
+            
+            //zrobic z tego transakce
+            //zmienimy na koniec wszystkie incomy(nie reguralne) na nieaktynwe
+            //to metode wywola hangfire co miesiac 1 dnia miesiaca i utworzy nowy budzet
     
             return Result.Ok();
         }
