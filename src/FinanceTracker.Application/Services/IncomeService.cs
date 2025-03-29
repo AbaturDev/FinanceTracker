@@ -14,11 +14,13 @@ public class IncomeService : IIncomeService
 {
     private readonly FinanceTrackerDbContext _dbContext;
     private readonly IUserContextService _userContext;
+    private readonly IUserMonthlyBudgetService _userMonthlyBudgetService;
 
-    public IncomeService(FinanceTrackerDbContext dbContext, IUserContextService userContext)
+    public IncomeService(FinanceTrackerDbContext dbContext, IUserContextService userContext, IUserMonthlyBudgetService userMonthlyBudgetService)
     {
         _dbContext = dbContext;
         _userContext = userContext;
+        _userMonthlyBudgetService = userMonthlyBudgetService;
     }
     
     public async Task<Result<PaginatedResponse<IncomeDto>>> GetIncomesAsync(PageQueryFilter filter, CancellationToken ct)
@@ -71,6 +73,11 @@ public class IncomeService : IIncomeService
         
         await _dbContext.Incomes.AddAsync(income, ct);
         await _dbContext.SaveChangesAsync(ct);
+
+        if (income.IsActiveThisMonth)
+        {
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+        }
         
         return Result.Ok(income.Id);
     }
@@ -78,6 +85,11 @@ public class IncomeService : IIncomeService
     public async Task<Result> UpdateIncomeAsync(UpdateIncomeDto dto, int id, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
+
+        if (userId == null)
+        {
+            throw new ArgumentNullException(nameof(userId), "User is null");
+        }
         
         var income = await _dbContext.Incomes
             .FirstOrDefaultAsync(i => i.Id == id && i.UserId == userId, ct);
@@ -105,6 +117,11 @@ public class IncomeService : IIncomeService
         income.UpdatedAt = DateTime.UtcNow;
         
         await _dbContext.SaveChangesAsync(ct);
+
+        if (income.IsActiveThisMonth)
+        {
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+        }
         
         return Result.Ok();
     }
@@ -112,6 +129,11 @@ public class IncomeService : IIncomeService
     public async Task<Result> DeleteIncomeAsync(int id, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
+        
+        if (userId == null)
+        {
+            throw new ArgumentNullException(nameof(userId), "User is null");
+        }
         
         var income = await _dbContext.Incomes
             .FirstOrDefaultAsync(i => i.Id == id && i.UserId == userId, ct);
@@ -124,12 +146,22 @@ public class IncomeService : IIncomeService
         _dbContext.Incomes.Remove(income);
         await _dbContext.SaveChangesAsync(ct);
         
+        if (income.IsActiveThisMonth)
+        {
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+        }
+        
         return Result.Ok();
     }
 
     public async Task<Result> UpdateIncomeActiveStatusAsync(int id, bool status, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
+        
+        if (userId == null)
+        {
+            throw new ArgumentNullException(nameof(userId), "User is null");
+        }
         
         var income = await _dbContext.Incomes
             .FirstOrDefaultAsync(i => i.Id == id && i.UserId == userId, ct);
@@ -144,15 +176,12 @@ public class IncomeService : IIncomeService
             return Result.Fail("Income is set as regular income, changing it status is forbidden");
         }
         
-        // TO FINISH
-        // TO FINISH
-        // TO FINISH
-        // TO FINISH
-        
         income.IsActiveThisMonth = status;
         income.UpdatedAt = DateTime.UtcNow;
         
         await _dbContext.SaveChangesAsync(ct);
+        
+        await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
         
         return Result.Ok();
     }
