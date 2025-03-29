@@ -76,7 +76,7 @@ public class IncomeService : IIncomeService
 
         if (income.IsActiveThisMonth)
         {
-            await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         }
         
         return Result.Ok(income.Id);
@@ -120,7 +120,7 @@ public class IncomeService : IIncomeService
 
         if (income.IsActiveThisMonth)
         {
-            await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         }
         
         return Result.Ok();
@@ -148,7 +148,7 @@ public class IncomeService : IIncomeService
         
         if (income.IsActiveThisMonth)
         {
-            await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         }
         
         return Result.Ok();
@@ -181,7 +181,7 @@ public class IncomeService : IIncomeService
         
         await _dbContext.SaveChangesAsync(ct);
         
-        await _userMonthlyBudgetService.UpdateUserMonthlyBudget(userId.Value, ct);
+        await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         
         return Result.Ok();
     }

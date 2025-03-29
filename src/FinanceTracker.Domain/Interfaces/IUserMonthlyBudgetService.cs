@@ -6,9 +6,9 @@ namespace FinanceTracker.Domain.Interfaces;
 
 public interface IUserMonthlyBudgetService
 {
-    Task<Result> GenerateMonthlyBudget(Guid userId, CancellationToken ct);
-    Task<Result> EnsureCreated(CancellationToken ct);
-    Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudget(Guid userId, CancellationToken ct);
-    Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistory(PageQueryFilter filter, Guid userId, CancellationToken ct);
-    Task<Result> UpdateUserMonthlyBudget(Guid userId, CancellationToken ct);
+    Task<Result> GenerateMonthlyBudgetAsync(Guid userId, CancellationToken ct);
+    Task<Result> EnsureCreatedAsync(CancellationToken ct);
+    Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudgetAsync(Guid userId, CancellationToken ct);
+    Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistoryAsync(PageQueryFilter filter, Guid userId, CancellationToken ct);
+    Task<Result> UpdateUserMonthlyBudgetAsync(Guid userId, CancellationToken ct);
 }

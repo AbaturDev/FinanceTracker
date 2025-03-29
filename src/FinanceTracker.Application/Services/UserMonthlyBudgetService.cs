@@ -18,13 +18,15 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         _dbContext = dbContext;
     }
     
-    public async Task<Result> GenerateMonthlyBudget(Guid userId, CancellationToken ct)
+    public async Task<Result> GenerateMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
         try
         {
+            var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
+            
             var budgetAlreadyExist = _dbContext.UserMonthlyBudgets
                 .Any(b => b.UserId == userId 
-                    && b.Date == ToBeginningOfMonth(DateTime.UtcNow));
+                    && b.Date == beginningOfMonth);
 
             if (budgetAlreadyExist)
             {
@@ -54,11 +56,13 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         }
     }
 
-    public async Task<Result> EnsureCreated(CancellationToken ct)
+    public async Task<Result> EnsureCreatedAsync(CancellationToken ct)
     {
+        var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
+        
         var usersWithOutBudget = await _dbContext.Users
             .Where(u => !_dbContext.UserMonthlyBudgets
-                .Any(b => b.UserId == u.Id && b.Date == ToBeginningOfMonth(DateTime.UtcNow)))
+                .Any(b => b.UserId == u.Id && b.Date == beginningOfMonth))
             .Select(u => u.Id)
             .ToListAsync(ct);
 
@@ -66,7 +70,7 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         
         foreach (var userId in usersWithOutBudget)
         {
-            var result = await GenerateMonthlyBudget(userId, ct);
+            var result = await GenerateMonthlyBudgetAsync(userId, ct);
 
             if (result.IsFailed)
             {
@@ -77,11 +81,13 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         return errors.Count == 0 ? Result.Ok() : Result.Fail(errors);
     }
 
-    public async Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudget(Guid userId, CancellationToken ct)
+    public async Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
+        var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
+        
         var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
             .FirstOrDefaultAsync(i => i.UserId == userId
-                && i.Date == ToBeginningOfMonth(DateTime.UtcNow), ct);
+                && i.Date == beginningOfMonth, ct);
 
         if (userMonthlyBudget == null)
         {
@@ -101,11 +107,13 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         return Result.Ok(userMonthlyBudgetDto);
     }
 
-    public async Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistory(PageQueryFilter filter, Guid userId, CancellationToken ct)
+    public async Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistoryAsync(PageQueryFilter filter, Guid userId, CancellationToken ct)
     {
+        var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
+        
         var baseQuery = _dbContext.UserMonthlyBudgets
             .Where(i => i.UserId == userId
-                && i.Date < ToBeginningOfMonth(DateTime.UtcNow));
+                && i.Date < beginningOfMonth);
         
         var itemsCount = await baseQuery.CountAsync(ct);
         
@@ -127,15 +135,17 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         return Result.Ok(result);
     }
 
-    public async Task<Result> UpdateUserMonthlyBudget(Guid userId, CancellationToken ct)
+    public async Task<Result> UpdateUserMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
+        var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
+        
         var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
             .FirstOrDefaultAsync(i => i.UserId == userId
-                && i.Date == ToBeginningOfMonth(DateTime.UtcNow), ct);
+                && i.Date == beginningOfMonth, ct);
 
         if (userMonthlyBudget == null)
         {
-            var result = await GenerateMonthlyBudget(userId, ct);
+            var result = await GenerateMonthlyBudgetAsync(userId, ct);
 
             return result.IsFailed ? Result.Fail("UserMonthlyBudget not found, create new one failed") : Result.Ok();
         }

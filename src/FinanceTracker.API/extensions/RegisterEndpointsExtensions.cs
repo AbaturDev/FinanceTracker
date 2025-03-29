@@ -8,6 +8,8 @@ public static class RegisterEndpointsExtensions
     {
         app
             .MapAccountsApi()
-            .MapExpensesPlannersApi();
+            .MapExpensesPlannersApi()
+            .MapIncomesApi()
+            .MapUserMonthlyBudgetsApi();
     }
 }
