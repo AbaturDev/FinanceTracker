@@ -10,7 +10,7 @@ public static class AccountsApi
     public static IEndpointRouteBuilder MapAccountsApi(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api")
-            .WithDisplayName("Accounts")
+            .WithTags("Accounts")
             .AllowAnonymous();
 
         group.MapPost("/register",
@@ -21,7 +21,7 @@ public static class AccountsApi
                 return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Errors);
             });
         
-        group.MapGet("/login", async (IAccountService accountService, CancellationToken ct, [FromBody] LoginDto dto) =>
+        group.MapPost("/login", async (IAccountService accountService, CancellationToken ct, [FromBody] LoginDto dto) =>
         {
             var result = await accountService.LoginAsync(dto, ct);
             

@@ -6,14 +6,14 @@ namespace FinanceTracker.API.Extensions;
 
 public static class HangfireExtensions
 {
-    public static IServiceCollection AddHangfire(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHangfire(config =>
         {
             config.UseSimpleAssemblyNameTypeSerializer()
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+                .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"));
         });
         
         services.AddHangfireServer();
