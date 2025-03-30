@@ -14,7 +14,7 @@ public sealed record Income : BaseEntity
     public ExchangeRate? OriginalExchangeRate { get; set; }
     public required Guid UserId { get; set; }
 
-    public required User User { get; set; }
+    public User? User { get; set; }
     public ICollection<UserMonthlyBudget>? UserMonthlyBudgets { get; set; }
 }
 

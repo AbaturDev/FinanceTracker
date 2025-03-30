@@ -102,7 +102,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
 
         if (userId == null)
         {
-            return Result.Fail("User does not exist");
+            throw new ArgumentNullException(nameof(userId), "User is null");
         }
 
         var expensePlanner = new ExpensesPlanner
@@ -122,7 +122,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
             };    
         }
         
-        _dbContext.ExpensesPlanners.Add(expensePlanner);
+        await _dbContext.ExpensesPlanners.AddAsync(expensePlanner, ct);
         await _dbContext.SaveChangesAsync(ct);
         
         return Result.Ok(expensePlanner.Id);

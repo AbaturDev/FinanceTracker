@@ -48,6 +48,8 @@ builder.Services.AddAuthentication(x =>
     });
 builder.Services.AddAuthorization();
 
+builder.Services.AddHangfire(builder);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
@@ -76,5 +78,9 @@ app.MapGet("/api/nbp", async (INbpApi nbpApi) =>
     return test;
 })
 .RequireAuthorization();
+
+await app.EnsureMonthlyBudgetsCreatedAsync();
+
+app.UseHangfire();
 
 app.Run();
