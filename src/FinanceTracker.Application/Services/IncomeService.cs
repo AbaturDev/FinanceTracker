@@ -46,6 +46,7 @@ public class IncomeService : IIncomeService
                 UserId = x.UserId,
             })
             .Paginate(filter.PageNumber, filter.PageSize)
+            .AsNoTracking()
             .ToListAsync(ct);
             
         var result = new PaginatedResponse<IncomeDto>(incomes, filter.PageNumber, filter.PageSize, itemsCount);
@@ -154,7 +155,7 @@ public class IncomeService : IIncomeService
         return Result.Ok();
     }
 
-    public async Task<Result> UpdateIncomeActiveStatusAsync(int id, bool status, CancellationToken ct)
+    public async Task<Result> UpdateIncomeActiveStatusAsync(int id, UpdateIncomeActivityStatusDto dto, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
         
@@ -176,7 +177,7 @@ public class IncomeService : IIncomeService
             return Result.Fail("Income is set as regular income, changing it status is forbidden");
         }
         
-        income.IsActiveThisMonth = status;
+        income.IsActiveThisMonth = dto.IsActiveThisMonth;
         income.UpdatedAt = DateTime.UtcNow;
         
         await _dbContext.SaveChangesAsync(ct);

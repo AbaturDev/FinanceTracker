@@ -42,9 +42,9 @@ public static class IncomesApi
             return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Errors);
         });
 
-        group.MapPut("/{id:int}/change-status", async (IIncomeService incomeService, int id,[FromBody] bool status, CancellationToken ct) =>
+        group.MapPut("/{id:int}/change-status", async (IIncomeService incomeService, int id,[FromBody] UpdateIncomeActivityStatusDto dto, CancellationToken ct) =>
         {
-            var result = await incomeService.UpdateIncomeActiveStatusAsync(id, status, ct);
+            var result = await incomeService.UpdateIncomeActiveStatusAsync(id, dto, ct);
 
             if (result.IsFailed)
             {

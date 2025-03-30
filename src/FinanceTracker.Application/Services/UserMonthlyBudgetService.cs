@@ -20,42 +20,50 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
     
     public async Task<Result> GenerateMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
         try
         {
             var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
             
-            var budgetAlreadyExist = _dbContext.UserMonthlyBudgets
-                .Any(b => b.UserId == userId 
-                    && b.Date == beginningOfMonth);
+            var budgetAlreadyExist = await _dbContext.UserMonthlyBudgets
+                .AnyAsync(b => b.UserId == userId 
+                    && b.Date == beginningOfMonth, ct);
 
             if (budgetAlreadyExist)
             {
-                return Result.Fail("UserMonthlyBudget already exist");
+                return Result.Fail("UserMonthlyBudget already exists");
             }
-            
-            var userMonthlyBudgetAmount = await _dbContext.Incomes
+
+            var userIncomes = await _dbContext.Incomes
                 .Where(i => i.UserId == userId
-                            && i.IsActiveThisMonth ==  true)
-                .SumAsync(i => i.Amount, ct);
+                            && i.IsActiveThisMonth == true)
+                .ToListAsync(ct);
 
             var budget = new UserMonthlyBudget
             {
                 UserId = userId,
-                Date = ToBeginningOfMonth(DateTime.UtcNow),
-                TotalBudget = userMonthlyBudgetAmount,
+                Date = beginningOfMonth,
+                TotalBudget = userIncomes.Sum(i => i.Amount),
             };
         
             await _dbContext.UserMonthlyBudgets.AddAsync(budget, ct);
-            await _dbContext.SaveChangesAsync(ct);
+
+            foreach (var income in userIncomes)
+            {
+                if (!income.RegularIncome)
+                {
+                    income.IsActiveThisMonth = false;
+                }
+            }
             
-            //zrobic z tego transakce
-            //zmienimy na koniec wszystkie incomy(nie reguralne) na nieaktynwe
-            //to metode wywola hangfire co miesiac 1 dnia miesiaca i utworzy nowy budzet
-    
+            await _dbContext.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
             return Result.Ok();
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync(ct);
             return Result.Fail($"Error generating budget: {ex.Message}");
         }
     }
