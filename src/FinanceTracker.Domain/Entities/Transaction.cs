@@ -18,7 +18,7 @@ public sealed record Transaction : BaseEntity
     public int? SavingGoalId { get; set; }
     public int? ExpensesPlannerId { get; set; }
 
-    public required User User { get; set; }
+    public User? User { get; set; }
     public UserMonthlyBudget? UserMonthlyBudget { get; set; }
     public SavingGoal? SavingGoal { get; set; }
     public ExpensesPlanner? ExpensesPlanner { get; set; }

@@ -36,4 +36,11 @@ public class UserContextService : IUserContextService
         
         return Guid.Parse(userId);
     }
+
+    public string? GetCurrentUserCurrencyCode()
+    {
+        var userCurrencyCode = _httpContextAccessor.HttpContext?.User.FindFirstValue("CurrencyCode");
+
+        return userCurrencyCode;
+    }
 }

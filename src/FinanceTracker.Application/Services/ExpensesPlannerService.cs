@@ -7,6 +7,7 @@ using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Entities.Owned;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.Infrastructure.Context;
+using FinanceTracker.NbpRates.Services.Interfaces;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,11 +17,13 @@ public class ExpensesPlannerService : IExpensesPlannerService
 {
     private readonly FinanceTrackerDbContext _dbContext;
     private readonly IUserContextService _userContext;
+    private readonly INbpRateService _nbpRateService;
 
-    public ExpensesPlannerService(FinanceTrackerDbContext dbContext, IUserContextService userContext)
+    public ExpensesPlannerService(FinanceTrackerDbContext dbContext, IUserContextService userContext, INbpRateService nbpRateService)
     {
         _dbContext = dbContext;
         _userContext = userContext;
+        _nbpRateService = nbpRateService;
     }
     
     public async Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesPlannersAsync(PageQueryFilter filter, CancellationToken ct)
@@ -42,7 +45,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
                 Name = e.Name,
                 Budget = e.Budget,
                 SpentAmount = e.SpentAmount,
-                OriginalExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(e.OriginalExchangeRate),
+                CurrencyCode = e.CurrencyCode,
                 Category = CategoryMapper.MapToCategoryDto(e.Category),
                 ResetInterval = e.ResetInterval,
                 UserId = e.UserId,
@@ -112,6 +115,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
             SpentAmount = 0,
             ResetInterval = dto.ResetInterval,
             UserId = userId.Value,
+            CurrencyCode = dto.CurrencyCode,
         };
 
         if (!string.IsNullOrEmpty(dto.CategoryName))
@@ -182,5 +186,33 @@ public class ExpensesPlannerService : IExpensesPlannerService
         await _dbContext.SaveChangesAsync(ct);
         
         return Result.Ok();
+    }
+
+    public async Task<Result<int>> AddTransactionAsync(int id, CreateTransactionDto dto, CancellationToken ct)
+    {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var userId = _userContext.GetCurrentUserId();
+        
+            var expensesPlanner = await _dbContext.ExpensesPlanners
+                .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
+
+            if (expensesPlanner == null)
+            {
+                return Result.Fail("ExpensesPlanner not found");
+            }
+
+            var exchangeRate = await _nbpRateService.GetExchangeRateAsync(dto.CurrencyCode);
+                
+            
+            await transaction.CommitAsync(ct);
+            return Result.Ok();
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(ct);
+            return Result.Fail(ex.Message);
+        }
     }
 }

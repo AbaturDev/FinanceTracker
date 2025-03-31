@@ -11,6 +11,6 @@ public sealed record IncomeDto
     public decimal Amount { get; set; }
     public bool RegularIncome { get; set; }
     public bool IsActiveThisMonth { get; set; }
-    public ExchangeRateDto? OriginalExchangeRate { get; set; }
+    public string? CurrencyCode { get; set; }
     public required Guid UserId { get; set; }
 }

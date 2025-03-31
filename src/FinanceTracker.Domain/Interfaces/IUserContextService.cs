@@ -6,4 +6,5 @@ public interface IUserContextService
 {
     ClaimsPrincipal? GetCurrentUser();
     Guid? GetCurrentUserId();
+    string? GetCurrentUserCurrencyCode();
 }

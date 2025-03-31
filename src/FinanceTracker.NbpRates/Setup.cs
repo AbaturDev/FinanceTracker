@@ -1,5 +1,7 @@
 using System.Text.Json;
 using FinanceTracker.NbpRates.Abstractions;
+using FinanceTracker.NbpRates.Services;
+using FinanceTracker.NbpRates.Services.Interfaces;
 using FinanceTracker.NbpRates.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,5 +23,8 @@ public static class Setup
             })
             .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://api.nbp.pl/api"))
             .AddPolicyHandler(NbpPolicesHandlerUtils.GetNbpRetryPolicy());
+
+        builder.Services.AddMemoryCache();
+        builder.Services.AddScoped<INbpRateService, NbpRateService>();
     }
 }

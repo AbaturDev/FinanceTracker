@@ -42,7 +42,7 @@ public class IncomeService : IIncomeService
                 Amount = x.Amount,
                 RegularIncome = x.RegularIncome,
                 IsActiveThisMonth = x.IsActiveThisMonth,
-                OriginalExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(x.OriginalExchangeRate),
+                CurrencyCode = x.CurrencyCode,
                 UserId = x.UserId,
             })
             .Paginate(filter.PageNumber, filter.PageSize)
@@ -70,6 +70,7 @@ public class IncomeService : IIncomeService
             RegularIncome = dto.RegularIncome,
             IsActiveThisMonth = dto.IsActiveThisMonth,
             UserId = userId.Value,
+            CurrencyCode = dto.CurrencyCode,
         };
         
         await _dbContext.Incomes.AddAsync(income, ct);
