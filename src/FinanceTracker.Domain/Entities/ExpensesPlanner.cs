@@ -11,7 +11,7 @@ public sealed record ExpensesPlanner : BaseEntity
     public required string Name { get; set; }
     public decimal Budget { get; set; }
     public decimal SpentAmount { get; set; }
-    public string? CurrencyCode { get; set; }
+    public required string CurrencyCode { get; set; }
     public Category? Category { get; set; }
     public ResetInterval ResetInterval { get; set; }
     public required Guid UserId { get; set; }

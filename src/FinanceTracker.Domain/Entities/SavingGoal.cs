@@ -12,7 +12,7 @@ public sealed record SavingGoal : BaseEntity
     public decimal AmountOfMoney { get; set; }
     public required string Goal { get; set; }
     public DateOnly? DueDate { get; set; }
-    public string? CurrencyCode { get; set; }
+    public required string CurrencyCode { get; set; }
     public required Guid UserId { get; set; }
 
     public required User User { get; set; }

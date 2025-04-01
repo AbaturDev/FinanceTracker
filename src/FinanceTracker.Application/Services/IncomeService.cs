@@ -57,10 +57,13 @@ public class IncomeService : IIncomeService
     public async Task<Result<int>> CreateIncomeAsync(CreateIncomeDto dto, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
+        
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        if (userId == null)
+        if (user == null)
         {
-            throw new ArgumentNullException(nameof(userId), "User is null");
+            throw new ArgumentNullException(nameof(user), "User is null");
         }
 
         var income = new Income
@@ -69,8 +72,8 @@ public class IncomeService : IIncomeService
             Amount = dto.Amount,
             RegularIncome = dto.RegularIncome,
             IsActiveThisMonth = dto.IsActiveThisMonth,
-            UserId = userId.Value,
-            CurrencyCode = dto.CurrencyCode,
+            UserId = user.Id,
+            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
         };
         
         await _dbContext.Incomes.AddAsync(income, ct);
@@ -78,7 +81,7 @@ public class IncomeService : IIncomeService
 
         if (income.IsActiveThisMonth)
         {
-            await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
+            await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(user.Id, ct);
         }
         
         return Result.Ok(income.Id);

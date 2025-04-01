@@ -102,10 +102,12 @@ public class ExpensesPlannerService : IExpensesPlannerService
     public async Task<Result<int>> CreateExpensesPlannerAsync(CreateExpensesPlannerDto dto, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
+        
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        if (userId == null)
+        if (user == null)
         {
-            throw new ArgumentNullException(nameof(userId), "User is null");
+            throw new ArgumentNullException(nameof(user), "User is null");
         }
 
         var expensePlanner = new ExpensesPlanner
@@ -114,8 +116,8 @@ public class ExpensesPlannerService : IExpensesPlannerService
             Budget = dto.Budget,
             SpentAmount = 0,
             ResetInterval = dto.ResetInterval,
-            UserId = userId.Value,
-            CurrencyCode = dto.CurrencyCode,
+            UserId = user.Id,
+            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
         };
 
         if (!string.IsNullOrEmpty(dto.CategoryName))

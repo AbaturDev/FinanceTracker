@@ -9,7 +9,7 @@ public sealed record UserMonthlyBudget : BaseEntity
 {
     public DateOnly Date { get; set; }
     public decimal TotalBudget { get; set; }
-    public string? CurrencyCode { get; set; }
+    public required string CurrencyCode { get; set; }
     public required Guid UserId { get; set; }
 
     public User? User { get; set; }
