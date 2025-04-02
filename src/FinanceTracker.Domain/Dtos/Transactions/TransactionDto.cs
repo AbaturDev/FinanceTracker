@@ -10,8 +10,9 @@ public sealed record TransactionDto
     public DateTime UpdatedAt { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
-    public decimal Amount { get; set; }
-    public ExchangeRateDto? ExchangeRate { get; set; }
-    public TransactionSource TransactionSource { get; set; }
+    public decimal OriginalAmount { get; set; }
+    public decimal CalculatedAmount { get; set; }
+    public ExchangeRateDto? BudgetExchangeRate { get; set; }
+    public ExchangeRateDto? TargetExchangeRate { get; set; }
     public required Guid UserId { get; set; }
 }

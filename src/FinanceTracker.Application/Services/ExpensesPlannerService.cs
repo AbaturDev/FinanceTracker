@@ -86,9 +86,10 @@ public class ExpensesPlannerService : IExpensesPlannerService
                 UpdatedAt = t.UpdatedAt,
                 Name = t.Name,
                 Description = t.Description,
-                Amount = t.Amount,
-                ExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.ExchangeRate),
-                TransactionSource = t.TransactionSource,
+                OriginalAmount = t.OriginalAmount,
+                CalculatedAmount = t.CalculatedAmount,
+                BudgetExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.BudgetExchangeRate),
+                TargetExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.TargetExchangeRate),
                 UserId = t.UserId,
             })
             .Paginate(filter.PageNumber, filter.PageSize)
@@ -196,20 +197,91 @@ public class ExpensesPlannerService : IExpensesPlannerService
         try
         {
             var userId = _userContext.GetCurrentUserId();
+
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId, ct);
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user), "User is null");
+            }
         
             var expensesPlanner = await _dbContext.ExpensesPlanners
+                .Include(e => e.Transactions)
                 .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
 
             if (expensesPlanner == null)
             {
                 return Result.Fail("ExpensesPlanner not found");
             }
-
-            var exchangeRate = await _nbpRateService.GetExchangeRateAsync(dto.CurrencyCode);
-                
             
+            var firstDayOfMonth = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            
+            var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
+                .FirstOrDefaultAsync(u => u.UserId == userId
+                    && u.Date == firstDayOfMonth, ct);
+
+            if (userMonthlyBudget == null)
+            {
+                return Result.Fail("UserMonthlyBudget not found");
+            }
+
+            if ((userMonthlyBudget.TotalBudget - userMonthlyBudget.TotalExpenses) < dto.Amount)
+            {
+                return Result.Fail("Not enough money for this transaction");
+            }
+
+            var budgetNbpRequest = await _nbpRateService.GetExchangeRateAsync(userMonthlyBudget.CurrencyCode);
+            var expensesNbpRequest = await _nbpRateService.GetExchangeRateAsync(expensesPlanner.CurrencyCode);
+            
+            if (budgetNbpRequest == null || expensesNbpRequest == null)
+            {
+                return Result.Fail("Exchange rate not found");
+            }
+            
+            var budgetExchangeRate = new ExchangeRate
+            {
+                CurrencyCode = userMonthlyBudget.CurrencyCode,
+                Mid = budgetNbpRequest.Mid,
+                Date = budgetNbpRequest.Date,
+            };
+            
+            var targetExchangeRate = new ExchangeRate
+            {
+                CurrencyCode = expensesPlanner.CurrencyCode,
+                Mid = expensesNbpRequest.Mid,
+                Date = expensesNbpRequest.Date,
+            };
+            
+            var calculatedAmount =  dto.Amount;
+            if (expensesPlanner.CurrencyCode != userMonthlyBudget.CurrencyCode)
+            {
+                var amountInPln = dto.Amount * budgetExchangeRate.Mid;
+                calculatedAmount = amountInPln / targetExchangeRate.Mid;
+            }
+            
+            var expensesPlannerTransaction = new Transaction
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                UserId = user.Id,
+                UserMonthlyBudgetId = userMonthlyBudget.Id,
+                OriginalAmount = dto.Amount,
+                CalculatedAmount = calculatedAmount,
+                BudgetExchangeRate = budgetExchangeRate,
+                TargetExchangeRate = targetExchangeRate,
+            };
+            
+            expensesPlanner.Transactions?.Add(expensesPlannerTransaction);
+            expensesPlanner.SpentAmount += calculatedAmount;
+            expensesPlanner.UpdatedAt = DateTime.UtcNow;
+
+            userMonthlyBudget.TotalExpenses += dto.Amount;
+            userMonthlyBudget.UpdatedAt = DateTime.UtcNow;
+            
+            await _dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
-            return Result.Ok();
+
+            return Result.Ok(expensesPlannerTransaction.Id);
         }
         catch (Exception ex)
         {
