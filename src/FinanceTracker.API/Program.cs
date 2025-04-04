@@ -1,6 +1,5 @@
 using FinanceTracker.API.Extensions;
 using FinanceTracker.Application;
-using FinanceTracker.NbpRates;
 
 var builder = WebApplication.CreateBuilder(args);
 
