@@ -23,6 +23,12 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
         try
         {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
+            if (user == null)
+            {
+                return Result.Fail("User not found");
+            }
+            
             var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
             
             var budgetAlreadyExist = await _dbContext.UserMonthlyBudgets
@@ -44,6 +50,7 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
                 UserId = userId,
                 Date = beginningOfMonth,
                 TotalBudget = userIncomes.Sum(i => i.Amount),
+                CurrencyCode = user.CurrencyCode,
             };
         
             await _dbContext.UserMonthlyBudgets.AddAsync(budget, ct);

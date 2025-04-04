@@ -12,4 +12,5 @@ public interface IExpensesPlannerService
     Task<Result<int>> CreateExpensesPlannerAsync(CreateExpensesPlannerDto dto, CancellationToken ct);
     Task<Result> UpdateExpensesPlannerAsync(UpdateExpensesPlannerDto dto, int id, CancellationToken ct);
     Task<Result> DeleteExpensesPlannerAsync(int id, CancellationToken ct);
+    Task<Result<int>> AddTransactionAsync(int id, CreateTransactionDto dto, CancellationToken ct);
 }

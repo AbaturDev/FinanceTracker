@@ -4,6 +4,7 @@ using FinanceTracker.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinanceTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(FinanceTrackerDbContext))]
-    partial class FinanceTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250401200850_UpdateCurrencyProperties")]
+    partial class UpdateCurrencyProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,7 +165,7 @@ namespace FinanceTracker.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("CalculatedAmount")
+                    b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -179,11 +182,10 @@ namespace FinanceTracker.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("OriginalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int?>("SavingGoalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TransactionSource")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -298,10 +300,6 @@ namespace FinanceTracker.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<decimal>("TotalBudget")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalExpenses")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -539,7 +537,7 @@ namespace FinanceTracker.Infrastructure.Migrations
                         .HasForeignKey("UserMonthlyBudgetId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.OwnsOne("FinanceTracker.Domain.Entities.Owned.ExchangeRate", "BudgetExchangeRate", b1 =>
+                    b.OwnsOne("FinanceTracker.Domain.Entities.Owned.ExchangeRate", "ExchangeRate", b1 =>
                         {
                             b1.Property<int>("TransactionId")
                                 .HasColumnType("int");
@@ -562,36 +560,11 @@ namespace FinanceTracker.Infrastructure.Migrations
                                 .HasForeignKey("TransactionId");
                         });
 
-                    b.OwnsOne("FinanceTracker.Domain.Entities.Owned.ExchangeRate", "TargetExchangeRate", b1 =>
-                        {
-                            b1.Property<int>("TransactionId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("CurrencyCode")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateOnly>("Date")
-                                .HasColumnType("date");
-
-                            b1.Property<decimal>("Mid")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("decimal(18,2)");
-
-                            b1.HasKey("TransactionId");
-
-                            b1.ToTable("Transactions");
-
-                            b1.WithOwner()
-                                .HasForeignKey("TransactionId");
-                        });
-
-                    b.Navigation("BudgetExchangeRate");
+                    b.Navigation("ExchangeRate");
 
                     b.Navigation("ExpensesPlanner");
 
                     b.Navigation("SavingGoal");
-
-                    b.Navigation("TargetExchangeRate");
 
                     b.Navigation("User");
 

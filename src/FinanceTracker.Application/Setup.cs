@@ -1,6 +1,7 @@
 ﻿using FinanceTracker.Application.Common;
 using FinanceTracker.Application.Services;
 using FinanceTracker.Domain.Interfaces;
+using FinanceTracker.NbpRates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +18,8 @@ public static class Setup
         {
             throw new InvalidConfigurationException("JWTSettings not found in configuration");
         }
+
+        builder.AddNbpIntegration();
 
         builder.Services.AddSingleton(jwtOptions);
 

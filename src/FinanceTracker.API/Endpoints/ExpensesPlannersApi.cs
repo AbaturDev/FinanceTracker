@@ -1,5 +1,7 @@
+using FinanceTracker.Application.Services;
 using FinanceTracker.Domain.Common.Pagination;
 using FinanceTracker.Domain.Dtos.ExpensesPlanners;
+using FinanceTracker.Domain.Dtos.Transactions;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.API.Endpoints;
@@ -49,6 +51,22 @@ public static class ExpensesPlannersApi
                 
                 return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Errors);
             });
+
+        group.MapPost("{id:int}/transactions", async (IExpensesPlannerService expensesPlannerService, CreateTransactionDto dto, int id, CancellationToken ct) =>
+        {
+            var result = await expensesPlannerService.AddTransactionAsync(id, dto, ct);
+
+            if (result.IsFailed)
+            {
+                var error = result.Errors.First().Message;
+
+                return error.Contains("not found")
+                    ? Results.NotFound(result.Errors)
+                    : Results.BadRequest(result.Errors);
+            }
+            
+            return Results.Created($"api/expenses-planner/{result.Value}", null);
+        });
         
         return app;
     }

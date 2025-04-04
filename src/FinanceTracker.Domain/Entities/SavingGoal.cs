@@ -12,7 +12,7 @@ public sealed record SavingGoal : BaseEntity
     public decimal AmountOfMoney { get; set; }
     public required string Goal { get; set; }
     public DateOnly? DueDate { get; set; }
-    public ExchangeRate? OriginalExchangeRate { get; set; }
+    public required string CurrencyCode { get; set; }
     public required Guid UserId { get; set; }
 
     public required User User { get; set; }
@@ -24,10 +24,6 @@ public class SavingGoalConfiguration : BaseEntityConfiguration<SavingGoal>
     public override void Configure(EntityTypeBuilder<SavingGoal> builder)
     {
         base.Configure(builder);
-
-        builder.OwnsOne(x => x.OriginalExchangeRate)
-            .Property(e => e.Mid)
-            .HasPrecision(18, 2);
         
         builder.Property(x => x.CurrentBalance)
             .HasPrecision(18, 2);

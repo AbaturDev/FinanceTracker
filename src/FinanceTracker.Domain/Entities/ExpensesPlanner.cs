@@ -11,9 +11,8 @@ public sealed record ExpensesPlanner : BaseEntity
     public required string Name { get; set; }
     public decimal Budget { get; set; }
     public decimal SpentAmount { get; set; }
-    public ExchangeRate? OriginalExchangeRate { get; set; }
+    public required string CurrencyCode { get; set; }
     public Category? Category { get; set; }
-
     public ResetInterval ResetInterval { get; set; }
     public required Guid UserId { get; set; }
 
@@ -26,10 +25,6 @@ public class ExpensesPlannerConfiguration : BaseEntityConfiguration<ExpensesPlan
     public override void Configure(EntityTypeBuilder<ExpensesPlanner> builder)
     {
         base.Configure(builder);
-
-        builder.OwnsOne(x => x.OriginalExchangeRate)
-            .Property(e => e.Mid)
-            .HasPrecision(18, 2);
         
         builder.OwnsOne(x => x.Category);
 
