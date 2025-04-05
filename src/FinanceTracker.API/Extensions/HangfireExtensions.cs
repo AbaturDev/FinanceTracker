@@ -15,13 +15,13 @@ public static class HangfireExtensions
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"));
         });
-        
+
         services.AddHangfireServer();
         services.AddScoped<IRecurringJobManager, RecurringJobManager>();
-        
+
         return services;
     }
-    
+
     public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();
@@ -39,7 +39,7 @@ public static class HangfireExtensions
                 service => service.GenerateMonthlyBudgetAsync(user.Id, CancellationToken.None),
                 Cron.Monthly(1));
         }
-        
+
         return app;
     }
 }

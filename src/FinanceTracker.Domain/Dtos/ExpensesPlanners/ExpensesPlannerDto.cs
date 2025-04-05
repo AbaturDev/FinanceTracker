@@ -1,5 +1,4 @@
 using FinanceTracker.Domain.Dtos.Owned;
-using FinanceTracker.Domain.Enums;
 
 namespace FinanceTracker.Domain.Dtos.ExpensesPlanners;
 
@@ -13,6 +12,5 @@ public sealed record ExpensesPlannerDto
     public decimal SpentAmount { get; set; }
     public string? CurrencyCode { get; set; }
     public CategoryDto? Category { get; set; }
-    public ResetInterval ResetInterval { get; set; }
     public required Guid UserId { get; set; }
 }

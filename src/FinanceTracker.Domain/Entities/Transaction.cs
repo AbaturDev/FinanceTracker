@@ -33,7 +33,7 @@ public class TransactionConfiguration : BaseEntityConfiguration<Transaction>
         builder.OwnsOne(x => x.BudgetExchangeRate)
             .Property(e => e.Mid)
             .HasPrecision(18, 2);
-        
+
         builder.OwnsOne(x => x.TargetExchangeRate)
             .Property(e => e.Mid)
             .HasPrecision(18, 2);
@@ -43,7 +43,7 @@ public class TransactionConfiguration : BaseEntityConfiguration<Transaction>
 
         builder.Property(x => x.CalculatedAmount)
             .HasPrecision(18, 2);
-        
+
         builder.HasOne(t => t.User)
             .WithMany()
             .HasForeignKey(t => t.UserId)

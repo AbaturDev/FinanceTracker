@@ -1,6 +1,5 @@
 using FinanceTracker.Domain.Dtos.Account;
 using FinanceTracker.Domain.Interfaces;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceTracker.API.Endpoints;
@@ -20,15 +19,14 @@ public static class AccountsApi
 
                 return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Errors);
             });
-        
+
         group.MapPost("/login", async (IAccountService accountService, CancellationToken ct, [FromBody] LoginDto dto) =>
         {
             var result = await accountService.LoginAsync(dto, ct);
-            
+
             return result.IsSuccess ? Results.Text(result.Value, "text/plain") : Results.BadRequest(result.Errors);
         });
-        
+
         return app;
     }
-    
 }
