@@ -1,0 +1,193 @@
+using FinanceTracker.Application.Mappers;
+using FinanceTracker.Application.Utils;
+using FinanceTracker.Domain.Common.Pagination;
+using FinanceTracker.Domain.Dtos.ExpensesPlanners;
+using FinanceTracker.Domain.Dtos.SavingGoals;
+using FinanceTracker.Domain.Dtos.Transactions;
+using FinanceTracker.Domain.Entities;
+using FinanceTracker.Domain.Entities.Owned;
+using FinanceTracker.Domain.Interfaces;
+using FinanceTracker.Infrastructure.Context;
+using FinanceTracker.NbpRates.Services.Interfaces;
+using FluentResults;
+using Microsoft.EntityFrameworkCore;
+
+namespace FinanceTracker.Application.Services;
+
+public class SavingGoalService : ISavingGoalService
+{
+    private readonly FinanceTrackerDbContext _dbContext;
+    private readonly IUserContextService _userContext;
+    private readonly INbpRateService _nbpRateService;
+
+    public SavingGoalService(FinanceTrackerDbContext dbContext, IUserContextService userContext, INbpRateService npRateService)
+    {
+        _dbContext = dbContext;
+        _userContext = userContext;
+        _nbpRateService = npRateService;
+    }
+
+    public async Task<Result<PaginatedResponse<SavingGoalDto>>> GetSavingGoalsAsync(PageQueryFilter filter, CancellationToken ct)
+    {
+        var userId = _userContext.GetCurrentUserId();
+
+        var baseQuery = _dbContext.SavingGoals
+            .AsNoTracking()
+            .Where(e => e.UserId == userId);
+        
+        var totalItemCount = await baseQuery.CountAsync(ct);
+
+        var goal = await baseQuery
+            .Select(e => new SavingGoalDto
+            {
+                Id = e.Id,
+                CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt,
+                Name = e.Name,
+                CurrentBalance = e.CurrentBalance,
+                AmountOfMoney = e.AmountOfMoney,
+                Goal = e.Goal,
+                DueDate = e.DueDate,
+                // OriginalExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(e.OriginalExchangeRate),
+                UserId = e.UserId,
+            })
+            .Paginate(filter.PageNumber, filter.PageSize)
+            .ToListAsync(ct);
+        
+        var result = new PaginatedResponse<SavingGoalDto>(goal, filter.PageNumber, filter.PageSize, totalItemCount);
+        
+        return Result.Ok(result);
+    }
+
+    public async Task<Result<PaginatedResponse<TransactionDto>>> GetSavingGoalTransactionsAsync(int id, PageQueryFilter filter, CancellationToken ct)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        
+        var savingGoal = await _dbContext.SavingGoals
+            .Include(e => e.Transactions)
+            .FirstOrDefaultAsync(e=> e.Id == id && e.UserId == userId, ct);
+
+        if (savingGoal == null)
+        {
+            return Result.Fail("SavingGoal not found");
+        }
+
+        if (savingGoal.Transactions == null)
+        {
+            return Result.Fail("SavingGoal transactions not found");
+        }
+        
+        var totalItemCount = savingGoal.Transactions.Count;
+        
+        var transactions = savingGoal.Transactions
+            .Select(t=> new TransactionDto
+            {
+                Id = t.Id,
+                CreatedAt = t.CreatedAt,
+                UpdatedAt = t.UpdatedAt,
+                Name = t.Name,
+                Description = t.Description,
+                OriginalAmount = t.OriginalAmount,
+                CalculatedAmount = t.CalculatedAmount,
+                BudgetExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.BudgetExchangeRate),
+                TargetExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.TargetExchangeRate),
+                UserId = t.UserId,
+            })
+            .Paginate(filter.PageNumber, filter.PageSize)
+            .ToList();
+        
+        var result = new PaginatedResponse<TransactionDto>(transactions, filter.PageNumber, filter.PageSize, totalItemCount);
+        
+        return Result.Ok(result);
+    }
+
+    public async Task<Result<int>> CreateSavingGoalAsync(CreateSavingGoalDto dto, CancellationToken ct)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
+
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user), "User is null");
+        }
+
+        var savingGoal = new SavingGoal
+        {
+            Name = dto.Name,
+            Goal = dto.Goal,
+            User = user,
+            UserId = user.Id,
+            CurrencyCode = dto.CurrencyCode,
+            CurrentBalance = dto.CurrentBalance,
+            AmountOfMoney = dto.AmountOfMoney,
+            DueDate = dto.DueDate,
+        };
+        
+        await _dbContext.SavingGoals.AddAsync(savingGoal, ct);
+        await _dbContext.SaveChangesAsync(ct);
+        
+        return Result.Ok(savingGoal.Id);
+    }
+
+    public async Task<Result> UpdateSavingGoalAsync(UpdateSavingGoalDto dto, int id, CancellationToken ct)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        
+        var savingGoal = await _dbContext.SavingGoals
+            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
+
+        if (savingGoal == null)
+        {
+            return Result.Fail("SavingGoal not found");
+        }
+
+        if (!string.IsNullOrEmpty(dto.Name))
+        {
+            savingGoal.Name = dto.Name;
+        }
+
+        if (!string.IsNullOrEmpty(dto.Goal))
+        {
+            savingGoal.Goal = dto.Goal;
+        }
+
+        if (dto.CurrentBalance != null)
+        {
+            savingGoal.CurrentBalance = dto.CurrentBalance.Value;
+        }
+
+        if (dto.AmountOfMoney != null)
+        {
+            savingGoal.AmountOfMoney = dto.AmountOfMoney.Value;
+        }
+
+        if (dto.DueDate != null)
+        {
+            savingGoal.DueDate = dto.DueDate.Value;
+        }
+        
+        savingGoal.UpdatedAt = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync(ct);
+        
+        return Result.Ok();
+    }
+
+    public async Task<Result> DeleteSavingGoalAsync(int id, CancellationToken ct)
+    {
+        var userId = _userContext.GetCurrentUserId();
+        
+        var savingGoal = await _dbContext.SavingGoals
+            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
+
+        if (savingGoal == null)
+        {
+            return Result.Fail("SavingGoal not found");
+        }
+
+        _dbContext.SavingGoals.Remove(savingGoal);
+        await _dbContext.SaveChangesAsync(ct);
+            
+        return Result.Ok();
+    }
+}

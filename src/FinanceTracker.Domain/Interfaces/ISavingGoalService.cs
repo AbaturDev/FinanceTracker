@@ -12,6 +12,6 @@ public interface ISavingGoalService
 
     Task<Result<int>> CreateSavingGoalAsync(CreateSavingGoalDto dto, CancellationToken ct);
 
-    // Task<Result> UpdateSavingGoalAsync(int id, CancellationToken ct);
+    Task<Result> UpdateSavingGoalAsync(UpdateSavingGoalDto dto, int id, CancellationToken ct);
     Task<Result> DeleteSavingGoalAsync(int id, CancellationToken ct);
 }
