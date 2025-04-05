@@ -40,8 +40,7 @@ public class IncomeService : IIncomeService
                 UpdatedAt = x.UpdatedAt,
                 Name = x.Name,
                 Amount = x.Amount,
-                RegularIncome = x.RegularIncome,
-                IsActiveThisMonth = x.IsActiveThisMonth,
+                IsActive = x.IsActive,
                 CurrencyCode = x.CurrencyCode,
                 UserId = x.UserId,
             })
@@ -70,8 +69,7 @@ public class IncomeService : IIncomeService
         {
             Name = dto.Name,
             Amount = dto.Amount,
-            RegularIncome = dto.RegularIncome,
-            IsActiveThisMonth = dto.IsActiveThisMonth,
+            IsActive = dto.IsActive,
             UserId = user.Id,
             CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
         };
@@ -79,7 +77,7 @@ public class IncomeService : IIncomeService
         await _dbContext.Incomes.AddAsync(income, ct);
         await _dbContext.SaveChangesAsync(ct);
 
-        if (income.IsActiveThisMonth)
+        if (income.IsActive)
         {
             await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(user.Id, ct);
         }
@@ -114,19 +112,15 @@ public class IncomeService : IIncomeService
             income.Amount = dto.Amount.Value;
         }
 
-        if (dto.RegularIncome != null)
+        if (dto.IsActive != null)
         {
-            income.RegularIncome = dto.RegularIncome.Value;
+            income.IsActive = dto.IsActive.Value;
         }
 
         income.UpdatedAt = DateTime.UtcNow;
         
         await _dbContext.SaveChangesAsync(ct);
-
-        if (income.IsActiveThisMonth)
-        {
-            await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
-        }
+        await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         
         return Result.Ok();
     }
@@ -151,42 +145,10 @@ public class IncomeService : IIncomeService
         _dbContext.Incomes.Remove(income);
         await _dbContext.SaveChangesAsync(ct);
         
-        if (income.IsActiveThisMonth)
+        if (income.IsActive)
         {
             await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         }
-        
-        return Result.Ok();
-    }
-
-    public async Task<Result> UpdateIncomeActiveStatusAsync(int id, UpdateIncomeActivityStatusDto dto, CancellationToken ct)
-    {
-        var userId = _userContext.GetCurrentUserId();
-        
-        if (userId == null)
-        {
-            throw new ArgumentNullException(nameof(userId), "User is null");
-        }
-        
-        var income = await _dbContext.Incomes
-            .FirstOrDefaultAsync(i => i.Id == id && i.UserId == userId, ct);
-
-        if (income == null)
-        {
-            return Result.Fail("Income not found");
-        }
-
-        if (income.RegularIncome)
-        {
-            return Result.Fail("Income is set as regular income, changing it status is forbidden");
-        }
-        
-        income.IsActiveThisMonth = dto.IsActiveThisMonth;
-        income.UpdatedAt = DateTime.UtcNow;
-        
-        await _dbContext.SaveChangesAsync(ct);
-        
-        await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
         
         return Result.Ok();
     }

@@ -47,7 +47,6 @@ public class ExpensesPlannerService : IExpensesPlannerService
                 SpentAmount = e.SpentAmount,
                 CurrencyCode = e.CurrencyCode,
                 Category = CategoryMapper.MapToCategoryDto(e.Category),
-                ResetInterval = e.ResetInterval,
                 UserId = e.UserId,
             })
             .Paginate(filter.PageNumber, filter.PageSize)
@@ -116,7 +115,6 @@ public class ExpensesPlannerService : IExpensesPlannerService
             Name = dto.Name,
             Budget = dto.Budget,
             SpentAmount = 0,
-            ResetInterval = dto.ResetInterval,
             UserId = user.Id,
             CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
         };
@@ -160,11 +158,6 @@ public class ExpensesPlannerService : IExpensesPlannerService
         if (!string.IsNullOrEmpty(dto.CategoryName) && expensesPlanner.Category != null)
         {
             expensesPlanner.Category.Name = dto.CategoryName;
-        }
-
-        if (dto.ResetInterval != null)
-        {
-            expensesPlanner.ResetInterval = dto.ResetInterval.Value;
         }
         
         expensesPlanner.UpdatedAt = DateTime.UtcNow;

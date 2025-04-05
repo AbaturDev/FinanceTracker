@@ -1,6 +1,5 @@
 using FinanceTracker.Domain.Common;
 using FinanceTracker.Domain.Entities.Owned;
-using FinanceTracker.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,7 +12,6 @@ public sealed record ExpensesPlanner : BaseEntity
     public decimal SpentAmount { get; set; }
     public required string CurrencyCode { get; set; }
     public Category? Category { get; set; }
-    public ResetInterval ResetInterval { get; set; }
     public required Guid UserId { get; set; }
 
     public User? User { get; set; }
