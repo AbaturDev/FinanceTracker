@@ -41,20 +41,6 @@ public static class IncomesApi
 
             return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Errors);
         });
-
-        group.MapPut("/{id:int}/change-status", async (IIncomeService incomeService, int id,[FromBody] UpdateIncomeActivityStatusDto dto, CancellationToken ct) =>
-        {
-            var result = await incomeService.UpdateIncomeActiveStatusAsync(id, dto, ct);
-
-            if (result.IsFailed)
-            {
-                var error = result.Errors.First().Message;
-
-                return error.Contains("not found") ? Results.NotFound(result.Errors) : Results.BadRequest(result.Errors);
-            }
-            
-            return Results.Ok();
-        });
         
         return app;
     }

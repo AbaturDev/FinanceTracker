@@ -10,5 +10,4 @@ public interface IIncomeService
     Task<Result<int>> CreateIncomeAsync(CreateIncomeDto dto, CancellationToken ct);
     Task<Result> UpdateIncomeAsync(UpdateIncomeDto dto, int id, CancellationToken ct);
     Task<Result> DeleteIncomeAsync(int id, CancellationToken ct);
-    Task<Result> UpdateIncomeActiveStatusAsync(int id, UpdateIncomeActivityStatusDto dto, CancellationToken ct);
 }

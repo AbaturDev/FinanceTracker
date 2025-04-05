@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using FinanceTracker.Domain.Common;
 using Microsoft.AspNetCore.Identity;
 
 namespace FinanceTracker.Domain.Entities;

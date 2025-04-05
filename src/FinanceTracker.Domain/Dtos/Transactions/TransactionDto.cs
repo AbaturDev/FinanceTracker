@@ -1,5 +1,4 @@
 using FinanceTracker.Domain.Dtos.Owned;
-using FinanceTracker.Domain.Enums;
 
 namespace FinanceTracker.Domain.Dtos.Transactions;
 

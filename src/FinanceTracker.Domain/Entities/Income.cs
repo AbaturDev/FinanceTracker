@@ -1,5 +1,4 @@
 using FinanceTracker.Domain.Common;
-using FinanceTracker.Domain.Entities.Owned;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,8 +8,7 @@ public sealed record Income : BaseEntity
 {
     public required string Name { get; set; }
     public decimal Amount { get; set; }
-    public bool RegularIncome { get; set; }
-    public bool IsActiveThisMonth { get; set; }
+    public bool IsActive { get; set; }
     public required string CurrencyCode { get; set; }
     public required Guid UserId { get; set; }
 

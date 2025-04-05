@@ -21,10 +21,10 @@ public static class UserMonthlyBudgetsApi
         group.MapGet("/budget-history", async (IUserMonthlyBudgetService userMonthlyBudgetService,[AsParameters] PageQueryFilter filter, Guid userId, CancellationToken ct) =>
         {
             var result = await userMonthlyBudgetService.GetUserMonthlyBudgetHistoryAsync(filter, userId, ct);
-            
+
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Errors);
         });
-        
+
         return app;
     }
 }
