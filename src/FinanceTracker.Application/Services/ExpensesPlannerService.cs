@@ -158,6 +158,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
         if (!string.IsNullOrEmpty(dto.CategoryName) && expensesPlanner.Category != null)
         {
             expensesPlanner.Category.Name = dto.CategoryName;
+        }
 
         expensesPlanner.UpdatedAt = DateTime.UtcNow;
         await _dbContext.SaveChangesAsync(ct);
