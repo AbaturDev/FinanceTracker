@@ -7,32 +7,32 @@ namespace FinanceTracker.NbpRates.Services;
 
 public class NbpRateService : INbpRateService
 {
+    private const int MaxPreviousDaysAttempts = 5;
+
     private static readonly MemoryCacheEntryOptions CacheOptions = new MemoryCacheEntryOptions()
         .SetSlidingExpiration(TimeSpan.FromHours(12))
         .SetAbsoluteExpiration(TimeSpan.FromDays(1))
         .SetPriority(CacheItemPriority.Normal);
-    
-    private const int MaxPreviousDaysAttempts = 5;
-    
+
     private readonly IMemoryCache _memoryCache;
     private readonly INbpApi _nbpApi;
-    
+
     public NbpRateService(IMemoryCache memoryCache, INbpApi nbpApi)
     {
         _memoryCache = memoryCache;
         _nbpApi = nbpApi;
     }
-    
+
     public async Task<NbpExchangeRateDto?> GetExchangeRateAsync(string currencyCode)
     {
         var requestDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        
+
         if (currencyCode == "PLN")
         {
             return new NbpExchangeRateDto
             {
                 Date = requestDate,
-                Mid = 1.000m,
+                Mid = 1.000m
             };
         }
 
@@ -41,7 +41,7 @@ public class NbpRateService : INbpRateService
             return new NbpExchangeRateDto
             {
                 Date = cachedRate.Date,
-                Mid = cachedRate.Mid,
+                Mid = cachedRate.Mid
             };
         }
 
@@ -49,7 +49,7 @@ public class NbpRateService : INbpRateService
         {
             CurrencyCode = currencyCode,
             StartDate = requestDate.AddDays(-MaxPreviousDaysAttempts),
-            EndDate = requestDate,
+            EndDate = requestDate
         };
 
         var response = await _nbpApi.GetExchangeRateAsync(request);
@@ -60,15 +60,15 @@ public class NbpRateService : INbpRateService
         }
         
         var lastRate = response.Rates.Last();
-        
+
         var nbpExchangeRateDto = new NbpExchangeRateDto
         {
             Date = lastRate.EffectiveDate,
-            Mid = lastRate.Mid,
+            Mid = lastRate.Mid
         };
-        
+
         _memoryCache.Set(GetNbpMemoryCacheKey(currencyCode, requestDate), nbpExchangeRateDto, CacheOptions);
-        
+
         return nbpExchangeRateDto;
     }
 

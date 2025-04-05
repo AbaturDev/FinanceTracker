@@ -29,13 +29,13 @@ public class ExpensesPlannerService : IExpensesPlannerService
     public async Task<Result<PaginatedResponse<ExpensesPlannerDto>>> GetExpensesPlannersAsync(PageQueryFilter filter, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
-        
+
         var baseQuery = _dbContext.ExpensesPlanners
             .AsNoTracking()
             .Where(e => e.UserId == userId);
 
         var totalItemsCount = await baseQuery.CountAsync(ct);
-        
+
         var expenses = await baseQuery
             .Select(e => new ExpensesPlannerDto
             {
@@ -47,7 +47,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
                 SpentAmount = e.SpentAmount,
                 CurrencyCode = e.CurrencyCode,
                 Category = CategoryMapper.MapToCategoryDto(e.Category),
-                UserId = e.UserId,
+                UserId = e.UserId
             })
             .Paginate(filter.PageNumber, filter.PageSize)
             .ToListAsync(ct);
@@ -60,7 +60,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
     public async Task<Result<PaginatedResponse<TransactionDto>>> GetExpensesPlannerTransactionsAsync(int id, PageQueryFilter filter, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
-        
+
         var expensePlanner = await _dbContext.ExpensesPlanners
             .Include(e => e.Transactions)
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
@@ -76,7 +76,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
         }
         
         var totalItemsCount = expensePlanner.Transactions.Count;
-        
+
         var transactions = expensePlanner.Transactions
             .Select(t => new TransactionDto
             {
@@ -89,7 +89,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
                 CalculatedAmount = t.CalculatedAmount,
                 BudgetExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.BudgetExchangeRate),
                 TargetExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(t.TargetExchangeRate),
-                UserId = t.UserId,
+                UserId = t.UserId
             })
             .Paginate(filter.PageNumber, filter.PageSize)
             .ToList();
@@ -102,7 +102,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
     public async Task<Result<int>> CreateExpensesPlannerAsync(CreateExpensesPlannerDto dto, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
-        
+
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
 
         if (user == null)
@@ -116,7 +116,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
             Budget = dto.Budget,
             SpentAmount = 0,
             UserId = user.Id,
-            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
+            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode
         };
 
         if (!string.IsNullOrEmpty(dto.CategoryName))
@@ -129,14 +129,14 @@ public class ExpensesPlannerService : IExpensesPlannerService
         
         await _dbContext.ExpensesPlanners.AddAsync(expensePlanner, ct);
         await _dbContext.SaveChangesAsync(ct);
-        
+
         return Result.Ok(expensePlanner.Id);
     }
 
     public async Task<Result> UpdateExpensesPlannerAsync(UpdateExpensesPlannerDto dto, int id, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
-        
+
         var expensesPlanner = await _dbContext.ExpensesPlanners
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
         
@@ -158,11 +158,10 @@ public class ExpensesPlannerService : IExpensesPlannerService
         if (!string.IsNullOrEmpty(dto.CategoryName) && expensesPlanner.Category != null)
         {
             expensesPlanner.Category.Name = dto.CategoryName;
-        }
-        
+
         expensesPlanner.UpdatedAt = DateTime.UtcNow;
         await _dbContext.SaveChangesAsync(ct);
-        
+
         return Result.Ok();
     }
 
@@ -180,7 +179,7 @@ public class ExpensesPlannerService : IExpensesPlannerService
 
         _dbContext.ExpensesPlanners.Remove(expensePlanner);
         await _dbContext.SaveChangesAsync(ct);
-        
+
         return Result.Ok();
     }
 
@@ -208,10 +207,10 @@ public class ExpensesPlannerService : IExpensesPlannerService
             }
             
             var firstDayOfMonth = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
-            
+
             var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
                 .FirstOrDefaultAsync(u => u.UserId == userId
-                    && u.Date == firstDayOfMonth, ct);
+                                          && u.Date == firstDayOfMonth, ct);
 
             if (userMonthlyBudget == null)
             {
@@ -235,23 +234,23 @@ public class ExpensesPlannerService : IExpensesPlannerService
             {
                 CurrencyCode = userMonthlyBudget.CurrencyCode,
                 Mid = budgetNbpRequest.Mid,
-                Date = budgetNbpRequest.Date,
+                Date = budgetNbpRequest.Date
             };
-            
+
             var targetExchangeRate = new ExchangeRate
             {
                 CurrencyCode = expensesPlanner.CurrencyCode,
                 Mid = expensesNbpRequest.Mid,
-                Date = expensesNbpRequest.Date,
+                Date = expensesNbpRequest.Date
             };
-            
-            var calculatedAmount =  dto.Amount;
+
+            var calculatedAmount = dto.Amount;
             if (expensesPlanner.CurrencyCode != userMonthlyBudget.CurrencyCode)
             {
                 var amountInPln = dto.Amount * budgetExchangeRate.Mid;
                 calculatedAmount = amountInPln / targetExchangeRate.Mid;
             }
-            
+
             var expensesPlannerTransaction = new Transaction
             {
                 Name = dto.Name,
@@ -261,16 +260,16 @@ public class ExpensesPlannerService : IExpensesPlannerService
                 OriginalAmount = dto.Amount,
                 CalculatedAmount = calculatedAmount,
                 BudgetExchangeRate = budgetExchangeRate,
-                TargetExchangeRate = targetExchangeRate,
+                TargetExchangeRate = targetExchangeRate
             };
-            
+
             expensesPlanner.Transactions?.Add(expensesPlannerTransaction);
             expensesPlanner.SpentAmount += calculatedAmount;
             expensesPlanner.UpdatedAt = DateTime.UtcNow;
 
             userMonthlyBudget.TotalExpenses += dto.Amount;
             userMonthlyBudget.UpdatedAt = DateTime.UtcNow;
-            
+
             await _dbContext.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
 

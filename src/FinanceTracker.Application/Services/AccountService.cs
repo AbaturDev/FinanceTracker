@@ -13,31 +13,29 @@ namespace FinanceTracker.Application.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly UserManager<User> _userManager;
     private readonly JwtOptions _jwtOptions;
+    private readonly UserManager<User> _userManager;
 
     public AccountService(UserManager<User> userManager, JwtOptions jwtOptions)
     {
         _userManager = userManager;
         _jwtOptions = jwtOptions;
-    }   
-    
+    }
+
     public async Task<Result<string>> LoginAsync(LoginDto loginDto, CancellationToken ct)
     {
         var user = await _userManager.FindByNameAsync(loginDto.UserName);
         if (user is null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
-        {
             return Result.Fail("Username or password is incorrect");
-        }
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, $"{user.Email}"),
-            new Claim("CurrencyCode", user.CurrencyCode)
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, $"{user.Email}"),
+            new("CurrencyCode", user.CurrencyCode)
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -50,25 +48,21 @@ public class AccountService : IAccountService
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        
+
         return Result.Ok(tokenHandler.WriteToken(token));
     }
 
     public async Task<Result> RegisterAsync(RegisterDto registerDto, CancellationToken ct)
     {
         if (await _userManager.FindByNameAsync(registerDto.UserName) is not null)
-        {
             return Result.Fail("Username is already taken");
-        }
         if (await _userManager.FindByEmailAsync(registerDto.Email) is not null)
-        {
             return Result.Fail("Email is already taken");
-        }
-        
+
         var user = new User
         {
             UserName = registerDto.UserName,
-            Email = registerDto.Email,
+            Email = registerDto.Email
         };
 
         if (!string.IsNullOrEmpty(registerDto.CurrencyCode))
@@ -82,7 +76,7 @@ public class AccountService : IAccountService
             var errors = createUserResult.Errors.Select(e => e.Description);
             return Result.Fail(errors);
         }
-        
+
         return Result.Ok();
     }
 }

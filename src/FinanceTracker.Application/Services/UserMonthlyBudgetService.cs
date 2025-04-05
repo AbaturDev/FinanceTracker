@@ -14,13 +14,13 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
 {
     private readonly FinanceTrackerDbContext _dbContext;
     private readonly INbpRateService _nbpRateService;
-    
+
     public UserMonthlyBudgetService(FinanceTrackerDbContext dbContext, INbpRateService nbpRateService)
     {
         _dbContext = dbContext;
         _nbpRateService = nbpRateService;
     }
-    
+
     public async Task<Result> GenerateMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
@@ -33,10 +33,10 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
             }
             
             var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
-            
+
             var budgetAlreadyExist = await _dbContext.UserMonthlyBudgets
-                .AnyAsync(b => b.UserId == userId 
-                    && b.Date == beginningOfMonth, ct);
+                .AnyAsync(b => b.UserId == userId
+                               && b.Date == beginningOfMonth, ct);
 
             if (budgetAlreadyExist)
             {
@@ -61,7 +61,7 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
                 Date = beginningOfMonth,
                 TotalBudget = sum,
                 CurrencyCode = user.CurrencyCode,
-                Incomes = userIncomes,
+                Incomes = userIncomes
             };
             await _dbContext.UserMonthlyBudgets.AddAsync(budget, ct);
             await _dbContext.SaveChangesAsync(ct);
@@ -86,7 +86,7 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
     public async Task<Result> EnsureCreatedAsync(CancellationToken ct)
     {
         var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
-        
+
         var usersWithOutBudget = await _dbContext.Users
             .Where(u => !_dbContext.UserMonthlyBudgets
                 .Any(b => b.UserId == u.Id && b.Date == beginningOfMonth))
@@ -94,7 +94,7 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
             .ToListAsync(ct);
 
         var errors = new List<string>();
-        
+
         foreach (var userId in usersWithOutBudget)
         {
             var result = await GenerateMonthlyBudgetAsync(userId, ct);
@@ -104,17 +104,17 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
                 errors.Add($"Failed to generate monthly budget for {userId}.");
             }
         }
-            
+
         return errors.Count == 0 ? Result.Ok() : Result.Fail(errors);
     }
 
     public async Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
         var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
-        
+
         var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
             .FirstOrDefaultAsync(i => i.UserId == userId
-                && i.Date == beginningOfMonth, ct);
+                                      && i.Date == beginningOfMonth, ct);
 
         if (userMonthlyBudget == null)
         {
@@ -130,22 +130,22 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
             TotalBudget = userMonthlyBudget.TotalBudget,
             TotalExpenses = userMonthlyBudget.TotalExpenses,
             CurrencyCode = userMonthlyBudget.CurrencyCode,
-            UserId = userMonthlyBudget.UserId,
+            UserId = userMonthlyBudget.UserId
         };
-        
+
         return Result.Ok(userMonthlyBudgetDto);
     }
 
     public async Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistoryAsync(PageQueryFilter filter, Guid userId, CancellationToken ct)
     {
         var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
-        
+
         var baseQuery = _dbContext.UserMonthlyBudgets
             .Where(i => i.UserId == userId
-                && i.Date < beginningOfMonth);
-        
+                        && i.Date < beginningOfMonth);
+
         var itemsCount = await baseQuery.CountAsync(ct);
-        
+
         var previousUserMonthlyBudgets = await baseQuery
             .Select(x => new UserMonthlyBudgetDto
             {
@@ -169,11 +169,11 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
     public async Task<Result> UpdateUserMonthlyBudgetAsync(Guid userId, CancellationToken ct)
     {
         var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
-        
+
         var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
             .Include(x => x.Incomes)
             .FirstOrDefaultAsync(x => x.UserId == userId
-                && x.Date == beginningOfMonth, ct);
+                                      && x.Date == beginningOfMonth, ct);
 
         if (userMonthlyBudget == null)
         {
@@ -181,12 +181,12 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
 
             return result.IsFailed ? Result.Fail("UserMonthlyBudget not found, create new one failed") : Result.Ok();
         }
-        
+
         var userIncomes = await _dbContext.Incomes
             .Where(i => i.UserId == userId
-                && i.IsActive ==  true)
+                        && i.IsActive == true)
             .ToListAsync(ct);
-        
+
         decimal updatedBudget = 0;
         foreach (var income in userIncomes)
         {
@@ -197,15 +197,15 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         userMonthlyBudget.Incomes?.Clear();
         userMonthlyBudget.Incomes = userIncomes;
         userMonthlyBudget.UpdatedAt = DateTime.UtcNow;
-        
+
         await _dbContext.SaveChangesAsync(ct);
-        
+
         return Result.Ok();
     }
 
     private static DateOnly ToBeginningOfMonth(DateTime date)
     {
-         return new DateOnly(date.Year, date.Month, 1);
+        return new DateOnly(date.Year, date.Month, 1);
     }
 
     private async Task<decimal> ConvertToBudgetCurrency(Income income, string currencyCode)
@@ -224,6 +224,6 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         }
 
         var incomeInPln = income.Amount * incomeNbpRate.Mid;
-        return (incomeInPln / userCurrencyNbpRate.Mid);
+        return incomeInPln / userCurrencyNbpRate.Mid;
     }
 }

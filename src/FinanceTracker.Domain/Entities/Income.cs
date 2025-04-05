@@ -1,5 +1,4 @@
 using FinanceTracker.Domain.Common;
-using FinanceTracker.Domain.Entities.Owned;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

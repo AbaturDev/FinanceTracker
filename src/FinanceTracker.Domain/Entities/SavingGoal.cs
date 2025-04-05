@@ -1,5 +1,4 @@
 using FinanceTracker.Domain.Common;
-using FinanceTracker.Domain.Entities.Owned;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,7 +23,7 @@ public class SavingGoalConfiguration : BaseEntityConfiguration<SavingGoal>
     public override void Configure(EntityTypeBuilder<SavingGoal> builder)
     {
         base.Configure(builder);
-        
+
         builder.Property(x => x.CurrentBalance)
             .HasPrecision(18, 2);
 

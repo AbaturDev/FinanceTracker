@@ -42,21 +42,21 @@ public class IncomeService : IIncomeService
                 Amount = x.Amount,
                 IsActive = x.IsActive,
                 CurrencyCode = x.CurrencyCode,
-                UserId = x.UserId,
+                UserId = x.UserId
             })
             .Paginate(filter.PageNumber, filter.PageSize)
             .AsNoTracking()
             .ToListAsync(ct);
-            
+
         var result = new PaginatedResponse<IncomeDto>(incomes, filter.PageNumber, filter.PageSize, itemsCount);
-        
+
         return Result.Ok(result);
     }
 
     public async Task<Result<int>> CreateIncomeAsync(CreateIncomeDto dto, CancellationToken ct)
     {
         var userId = _userContext.GetCurrentUserId();
-        
+
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
@@ -71,9 +71,9 @@ public class IncomeService : IIncomeService
             Amount = dto.Amount,
             IsActive = dto.IsActive,
             UserId = user.Id,
-            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
+            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode
         };
-        
+
         await _dbContext.Incomes.AddAsync(income, ct);
         await _dbContext.SaveChangesAsync(ct);
 
@@ -118,10 +118,10 @@ public class IncomeService : IIncomeService
         }
 
         income.UpdatedAt = DateTime.UtcNow;
-        
+
         await _dbContext.SaveChangesAsync(ct);
         await _userMonthlyBudgetService.UpdateUserMonthlyBudgetAsync(userId.Value, ct);
-        
+
         return Result.Ok();
     }
 

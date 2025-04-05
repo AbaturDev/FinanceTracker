@@ -16,7 +16,7 @@ public static class DatabaseExtensions
         services.AddIdentity<User, IdentityRole<Guid>>()
             .AddEntityFrameworkStores<FinanceTrackerDbContext>()
             .AddDefaultTokenProviders();
-        
+
         return services;
     }
 }

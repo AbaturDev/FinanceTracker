@@ -23,7 +23,7 @@ public class ExpensesPlannerConfiguration : BaseEntityConfiguration<ExpensesPlan
     public override void Configure(EntityTypeBuilder<ExpensesPlanner> builder)
     {
         base.Configure(builder);
-        
+
         builder.OwnsOne(x => x.Category);
 
         builder.Property(x => x.Budget)

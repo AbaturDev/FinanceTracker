@@ -1,5 +1,4 @@
 using FinanceTracker.Domain.Common;
-using FinanceTracker.Domain.Entities.Owned;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -28,7 +27,7 @@ public class UserMonthlyBudgetConfiguration : BaseEntityConfiguration<UserMonthl
 
         builder.Property(x => x.TotalExpenses)
             .HasPrecision(18, 2);
-        
+
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)

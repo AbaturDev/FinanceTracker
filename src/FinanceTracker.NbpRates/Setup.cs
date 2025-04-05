@@ -19,7 +19,7 @@ public static class Setup
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 }),
-                UrlParameterFormatter = new CustomDateOnlyParameterFormatterUtils(),
+                UrlParameterFormatter = new CustomDateOnlyParameterFormatterUtils()
             })
             .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://api.nbp.pl/api"))
             .AddPolicyHandler(NbpPolicesHandlerUtils.GetNbpRetryPolicy());
