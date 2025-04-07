@@ -1,0 +1,26 @@
+﻿@page "/counter"
+@using FinanceTracker.Client.Dtos.Account
+@using FinanceTracker.Client.Interfaces
+@inject IAuthenticationService AuthenticationService
+
+<PageTitle>Counter</PageTitle>
+
+<MudGrid>
+    <MudText Typo="Typo.h3" GutterBottom="true">You are authenticated</MudText>
+</MudGrid>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount </p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+    
+    private async Task IncrementCount()
+    {
+        currentCount++;
+        await AuthenticationService.LoginAsync(new LoginDto("domi", "Haslo123!"), CancellationToken.None);
+    }
+}

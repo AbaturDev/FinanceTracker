@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.Infrastructu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.NbpRates", "src\FinanceTracker.NbpRates\FinanceTracker.NbpRates.csproj", "{8315FFAF-7944-4651-8569-400C7BF34305}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceTracker.Client", "src\FinanceTracker.Client\FinanceTracker.Client.csproj", "{8B009B74-FDFF-4DB5-9B67-4B72D9C0387C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8315FFAF-7944-4651-8569-400C7BF34305}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8315FFAF-7944-4651-8569-400C7BF34305}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8315FFAF-7944-4651-8569-400C7BF34305}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B009B74-FDFF-4DB5-9B67-4B72D9C0387C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B009B74-FDFF-4DB5-9B67-4B72D9C0387C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B009B74-FDFF-4DB5-9B67-4B72D9C0387C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B009B74-FDFF-4DB5-9B67-4B72D9C0387C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
