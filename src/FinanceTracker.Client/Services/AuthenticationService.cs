@@ -22,7 +22,7 @@ public class AuthenticationService : IAuthenticationService
     
     public async Task<string> LoginAsync(LoginDto dto, CancellationToken ct)
     {
-        var response = await _httpClient.PostAsJsonAsync("/api/login", new LoginDto("domi", "Haslo123!"), ct);
+        var response = await _httpClient.PostAsJsonAsync("/api/login", dto, ct);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -30,22 +30,28 @@ public class AuthenticationService : IAuthenticationService
         }
         
         var token = await response.Content.ReadFromJsonAsync<string>(cancellationToken: ct);
+
+        if (token is null)
+        {
+            throw new HttpRequestException($"Failed to login: jwt token was null");
+        }
         
         await _localStorageService.SetItemAsync("token", token, ct);
         ((CustomAuthenticationStateProvider)_authenticationStateProvider).SetUserAuthenticated(token);
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        Console.WriteLine(token);
         
         return token;
     }
 
-    public Task LogoutAsync(CancellationToken ct)
+    public async Task LogoutAsync(CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await _localStorageService.RemoveItemAsync("token", ct);
+        ((CustomAuthenticationStateProvider)_authenticationStateProvider).SetUserLoggedOut();
+        _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
-    public Task RegisterAsync(RegisterDto dto, CancellationToken ct)
+    public async Task RegisterAsync(RegisterDto dto, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await _httpClient.PostAsJsonAsync("/api/register", dto, ct);
     }
 }

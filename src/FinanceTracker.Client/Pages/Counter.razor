@@ -21,6 +21,5 @@
     private async Task IncrementCount()
     {
         currentCount++;
-        await AuthenticationService.LoginAsync(new LoginDto("domi", "Haslo123!"), CancellationToken.None);
     }
 }

@@ -1,3 +1,7 @@
 namespace FinanceTracker.Client.Dtos.Account;
 
-public sealed record LoginDto(string Username, string Password);
+public sealed record LoginDto
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
+}

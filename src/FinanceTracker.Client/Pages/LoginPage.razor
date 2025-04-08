@@ -1,0 +1,47 @@
+@page "/login"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using FinanceTracker.Client.Dtos.Account
+@using FinanceTracker.Client.Interfaces
+@inject IAuthenticationService AuthenticationService
+
+<h2 class="d-flex align-content-center justify-content-center">Login Page</h2>
+
+<MudGrid Justify="Justify.Center" class="mt-2">
+    <MudItem xs="12" sm="7" md="5" lg="4">
+        <MudPaper Class="pa-6">
+            <MudForm @ref="form" @bind-Errors="@errors">
+                <MudTextField 
+                    T="string" Label="Username" Required="true" RequiredError="User can not be empty" @bind-Value="loginDto.Username"
+                />
+                <MudTextField 
+                    T="string" Label="Password" InputType="InputType.Password" Required="true" RequiredError="Password can not be empty" @bind-Value="loginDto.Password" 
+                />
+                <div class="d-flex justify-content-center mt-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Login" Class="px-5 py-3">
+                        Login
+                    </MudButton>
+                </div>
+            </MudForm>
+            <div class="d-flex align-content-center justify-content-center mt-4">
+                <MudLink Href="/register">Don't have an account? Register now! </MudLink>
+            </div>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+@code {
+    string[] errors = { };
+    MudForm form;
+    LoginDto loginDto = new LoginDto();
+    
+    private async Task Login()
+    {
+        if (form.IsValid)
+        {
+            var result = await AuthenticationService.LoginAsync(loginDto, new CancellationToken());
+            
+            Console.WriteLine(result);
+        }
+    }
+}

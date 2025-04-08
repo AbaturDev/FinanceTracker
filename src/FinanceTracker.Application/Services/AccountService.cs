@@ -24,7 +24,7 @@ public class AccountService : IAccountService
 
     public async Task<Result<string>> LoginAsync(LoginDto loginDto, CancellationToken ct)
     {
-        var user = await _userManager.FindByNameAsync(loginDto.UserName);
+        var user = await _userManager.FindByNameAsync(loginDto.Username);
         if (user is null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
             return Result.Fail("Username or password is incorrect");
 
@@ -54,14 +54,14 @@ public class AccountService : IAccountService
 
     public async Task<Result> RegisterAsync(RegisterDto registerDto, CancellationToken ct)
     {
-        if (await _userManager.FindByNameAsync(registerDto.UserName) is not null)
+        if (await _userManager.FindByNameAsync(registerDto.Username) is not null)
             return Result.Fail("Username is already taken");
         if (await _userManager.FindByEmailAsync(registerDto.Email) is not null)
             return Result.Fail("Email is already taken");
 
         var user = new User
         {
-            UserName = registerDto.UserName,
+            UserName = registerDto.Username,
             Email = registerDto.Email
         };
 

@@ -1,0 +1,83 @@
+@page "/register"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using FinanceTracker.Client.Dtos.Account
+@using FinanceTracker.Client.Interfaces
+@inject IAuthenticationService AuthenticationService
+
+<h2 class="d-flex align-content-center justify-content-center">Register Page</h2>
+
+<MudGrid Justify="Justify.Center" class="mt-2">
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField T="string" Label="Username" Required="true" RequiredError="User name is required!" @bind-Value="registerDto.Username"/>
+                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email is required!"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})"
+                              @bind-Value="registerDto.Email"/>
+                <MudTextField T="string" Label="Password" HelperText="Choose a strong password" @ref="pwField1"
+                              InputType="InputType.Password"
+                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
+                              RequiredError="Password is required!" @bind-Value="registerDto.Password"
+                />
+                <MudTextField T="string"
+                              Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
+                              Validation="@(new Func<string, string>(PasswordMatch))" Required="true"
+                              RequiredError="Repeat the password!" @bind-Value="registerDto.VerifyPassword" />
+                <MudTextField T="string"
+                              Label="CurrencyCode" HelperText="Chose the default currency code" InputType="InputType.Text"
+                              Required="false" @bind-Value="registerDto.CurrencyCode"
+                />
+                <div class="d-flex align-center justify-space-between">
+                    <MudCheckBox T="bool" Required="true" RequiredError="You must agree" Label="I agree!"  />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto" OnClick="Register">
+                        Register
+                    </MudButton>
+                </div>
+            </MudForm>
+            <div class="d-flex align-content-center justify-content-center">
+                <MudLink Href="/login">I have an account </MudLink>
+            </div>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+@code {
+    bool success;
+    string[] errors = { };
+    MudTextField<string> pwField1;
+    MudForm form;
+    RegisterDto registerDto = new RegisterDto();
+    
+    private async Task Register()
+    {
+        if (form.IsValid && success)
+        {
+            await AuthenticationService.RegisterAsync(registerDto, new CancellationToken());
+        }
+    }
+    
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+
+    private string PasswordMatch(string arg)
+    {
+        if (pwField1.Value != arg)
+            return "Passwords don't match";
+        return null;
+    }
+}
