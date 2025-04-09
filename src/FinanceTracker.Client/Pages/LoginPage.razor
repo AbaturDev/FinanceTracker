@@ -1,0 +1,57 @@
+@page "/login"
+
+@using FinanceTracker.Client.Dtos.Account
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager Navigation
+
+<h2 class="d-flex align-content-center justify-content-center">Login Page</h2>
+
+<MudGrid Justify="Justify.Center" class="mt-2">
+    <MudItem xs="12" sm="7" md="5" lg="4">
+        <MudPaper Class="pa-6">
+            <MudForm @ref="form" @bind-Errors="@errors">
+                <MudTextField 
+                    T="string" Label="Username" Required="true" RequiredError="User can not be empty" @bind-Value="loginDto.Username"
+                />
+                <MudTextField 
+                    T="string" Label="Password" InputType="InputType.Password" Required="true" RequiredError="Password can not be empty" @bind-Value="loginDto.Password" 
+                />
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <MudText Color="Color.Error" Class="d-flex justify-content-center mt-3">@errorMessage</MudText>
+                }
+                <div class="d-flex justify-content-center mt-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Login" Class="px-5 py-3">
+                        Login
+                    </MudButton>
+                </div>
+            </MudForm>
+            <div class="d-flex align-content-center justify-content-center mt-4">
+                <MudLink Href="/register">Don't have an account? Register now! </MudLink>
+            </div>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+@code {
+    string[] errors = { };
+    MudForm form;
+    LoginDto loginDto = new LoginDto();
+    string errorMessage;
+    
+    private async Task Login()
+    {
+        if (form.IsValid)
+        {
+            var result = await AuthenticationService.LoginAsync(loginDto, new CancellationToken());
+
+            if (result.IsSuccess)
+            {
+                Navigation.NavigateTo("/", forceLoad:true);
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage;
+            }
+        }
+    }
+}

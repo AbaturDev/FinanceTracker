@@ -14,7 +14,11 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHangfire(builder.Configuration);
 
+builder.Services.AddCorsPolicies();
+
 var app = builder.Build();
+
+app.UseCors("FrontendClient");
 
 if (app.Environment.IsDevelopment())
 {

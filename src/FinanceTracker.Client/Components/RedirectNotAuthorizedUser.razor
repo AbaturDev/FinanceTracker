@@ -1,0 +1,23 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@code {
+    private async Task CheckAuthorizationAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (!user.Identity.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckAuthorizationAsync();
+    }
+}
+
+<p>Redirecting...</p>
