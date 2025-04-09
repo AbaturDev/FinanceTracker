@@ -1,20 +1,36 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager Navigation
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            <main>
+                <div class="top-row px-4">
+                    <MudButton StartIcon="@Icons.Material.Filled.Logout" OnClick="Logout" Class="d-flex align-items-center gap-2">
+                        Logout
+                    </MudButton>
+                </div>
+
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
         </div>
+    </Authorized>
 
-        <article class="content px-4">
+    <NotAuthorized>
+        <LayoutView Layout="@typeof(NoMenuLayout)">
             @Body
-        </article>
-    </main>
-</div>
+        </LayoutView>
+    </NotAuthorized>
+</AuthorizeView>
+
 @* Required *@
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -24,3 +40,11 @@
 
 @* Needed for snackbars *@
 <MudSnackbarProvider />
+
+@code{
+    private async Task Logout()
+    {
+        await AuthenticationService.LogoutAsync(new CancellationToken());
+        Navigation.NavigateTo("/login", forceLoad:true);
+    }
+}
