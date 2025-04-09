@@ -1,10 +1,11 @@
 using FinanceTracker.Client.Dtos.Account;
+using FinanceTracker.Client.Dtos.ApiRequests;
 
 namespace FinanceTracker.Client.Interfaces;
 
 public interface IAuthenticationService
 {
-    Task<string> LoginAsync(LoginDto dto, CancellationToken ct);
+    Task<RequestResult> LoginAsync(LoginDto dto, CancellationToken ct);
     Task LogoutAsync(CancellationToken ct);
-    Task RegisterAsync(RegisterDto dto, CancellationToken ct);
+    Task<RequestResult> RegisterAsync(RegisterDto dto, CancellationToken ct);
 }

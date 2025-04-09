@@ -1,10 +1,8 @@
 @page "/login"
 
-@using System.Text.RegularExpressions
-@using System.ComponentModel.DataAnnotations
 @using FinanceTracker.Client.Dtos.Account
-@using FinanceTracker.Client.Interfaces
 @inject IAuthenticationService AuthenticationService
+@inject NavigationManager Navigation
 
 <h2 class="d-flex align-content-center justify-content-center">Login Page</h2>
 
@@ -18,6 +16,10 @@
                 <MudTextField 
                     T="string" Label="Password" InputType="InputType.Password" Required="true" RequiredError="Password can not be empty" @bind-Value="loginDto.Password" 
                 />
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <MudText Color="Color.Error" Class="d-flex justify-content-center mt-3">@errorMessage</MudText>
+                }
                 <div class="d-flex justify-content-center mt-4">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Login" Class="px-5 py-3">
                         Login
@@ -34,14 +36,22 @@
     string[] errors = { };
     MudForm form;
     LoginDto loginDto = new LoginDto();
+    string errorMessage;
     
     private async Task Login()
     {
         if (form.IsValid)
         {
             var result = await AuthenticationService.LoginAsync(loginDto, new CancellationToken());
-            
-            Console.WriteLine(result);
+
+            if (result.IsSuccess)
+            {
+                Navigation.NavigateTo("/", forceLoad:true);
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage;
+            }
         }
     }
 }

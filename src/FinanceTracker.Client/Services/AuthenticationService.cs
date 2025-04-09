@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
 using FinanceTracker.Client.Dtos.Account;
+using FinanceTracker.Client.Dtos.ApiRequests;
 using FinanceTracker.Client.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -19,28 +20,35 @@ public class AuthenticationService : IAuthenticationService
         _localStorageService = localStorageService;
         _authenticationStateProvider = authenticationStateProvider;
     }
-    
-    public async Task<string> LoginAsync(LoginDto dto, CancellationToken ct)
+
+    public async Task<RequestResult> LoginAsync(LoginDto dto, CancellationToken ct)
     {
-        var response = await _httpClient.PostAsJsonAsync("/api/login", dto, ct);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            throw new HttpRequestException($"Failed to login: {response.StatusCode}");
-        }
-        
-        var token = await response.Content.ReadFromJsonAsync<string>(cancellationToken: ct);
+            var response = await _httpClient.PostAsJsonAsync("/api/login", dto, ct);
 
-        if (token is null)
-        {
-            throw new HttpRequestException($"Failed to login: jwt token was null");
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"Failed to login: {response.StatusCode}");
+            }
+
+            var token = await response.Content.ReadFromJsonAsync<string>(cancellationToken: ct);
+
+            if (token is null)
+            {
+                return new RequestResult(false, "Failed to login");
+            }
+
+            await _localStorageService.SetItemAsync("token", token, ct);
+            ((CustomAuthenticationStateProvider)_authenticationStateProvider).SetUserAuthenticated(token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return new RequestResult(true);
         }
-        
-        await _localStorageService.SetItemAsync("token", token, ct);
-        ((CustomAuthenticationStateProvider)_authenticationStateProvider).SetUserAuthenticated(token);
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        
-        return token;
+        catch (Exception ex)
+        {
+            return new RequestResult(false, ex.Message);
+        }
     }
 
     public async Task LogoutAsync(CancellationToken ct)
@@ -50,8 +58,26 @@ public class AuthenticationService : IAuthenticationService
         _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
-    public async Task RegisterAsync(RegisterDto dto, CancellationToken ct)
+    public async Task<RequestResult> RegisterAsync(RegisterDto dto, CancellationToken ct)
     {
-        await _httpClient.PostAsJsonAsync("/api/register", dto, ct);
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/register", dto, ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorDetails = await response.Content.ReadFromJsonAsync<List<ErrorResponse>>(cancellationToken: ct);
+
+                var errorMessage = errorDetails?[0].Message ?? "Failed to register account"; 
+                
+                return new RequestResult(false, errorMessage);
+            }
+
+            return new RequestResult(true);
+        }
+        catch (Exception ex)
+        {
+            return new RequestResult(false, ex.Message);
+        }
     }
 }

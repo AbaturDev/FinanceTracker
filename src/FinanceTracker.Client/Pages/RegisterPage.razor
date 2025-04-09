@@ -3,8 +3,9 @@
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
 @using FinanceTracker.Client.Dtos.Account
-@using FinanceTracker.Client.Interfaces
 @inject IAuthenticationService AuthenticationService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
 
 <h2 class="d-flex align-content-center justify-content-center">Register Page</h2>
 
@@ -51,9 +52,19 @@
     
     private async Task Register()
     {
-        if (form.IsValid && success)
+        if (form.IsValid)
         {
-            await AuthenticationService.RegisterAsync(registerDto, new CancellationToken());
+            var result = await AuthenticationService.RegisterAsync(registerDto, new CancellationToken());
+
+            if (result.IsSuccess)
+            {
+                Snackbar.Add("Account created successfully! Pleas log in.", Severity.Success);
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage, Severity.Error);
+            }
         }
     }
     
