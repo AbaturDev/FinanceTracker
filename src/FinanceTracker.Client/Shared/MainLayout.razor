@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+
+            <main>
+                <div class="top-row px-4">
+                    <MudButton StartIcon="@Icons.Material.Filled.Logout" OnClick="Logout" Class="d-flex align-items-center gap-2">
+                        Logout
+                    </MudButton>
+                </div>
+
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
+        </div>
+    </Authorized>
+
+    <NotAuthorized>
+        <LayoutView Layout="@typeof(NoMenuLayout)">
+            @Body
+        </LayoutView>
+    </NotAuthorized>
+</AuthorizeView>
+
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+@code{
+    private async Task Logout()
+    {
+        await AuthenticationService.LogoutAsync(new CancellationToken());
+        Navigation.NavigateTo("/login", forceLoad:true);
+    }
+}
