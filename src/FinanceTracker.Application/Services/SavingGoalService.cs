@@ -1,7 +1,6 @@
 using FinanceTracker.Application.Mappers;
 using FinanceTracker.Application.Utils;
 using FinanceTracker.Domain.Common.Pagination;
-using FinanceTracker.Domain.Dtos.ExpensesPlanners;
 using FinanceTracker.Domain.Dtos.SavingGoals;
 using FinanceTracker.Domain.Dtos.Transactions;
 using FinanceTracker.Domain.Entities;
@@ -189,5 +188,104 @@ public class SavingGoalService : ISavingGoalService
         await _dbContext.SaveChangesAsync(ct);
             
         return Result.Ok();
+    }
+
+    public async Task<Result<int>> AddTransactionAsync(int id, CreateTransactionDto dto, CancellationToken ct)
+    {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var userId = _userContext.GetCurrentUserId();
+
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId, ct);
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user), "User is null");
+            }
+        
+            var savingGoal = await _dbContext.SavingGoals
+                .Include(e => e.Transactions)
+                .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId, ct);
+
+            if (savingGoal == null)
+            {
+                return Result.Fail("SavingGoal not found");
+            }
+            
+            var firstDayOfMonth = new DateOnly(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+
+            var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
+                .FirstOrDefaultAsync(u => u.UserId == userId
+                                          && u.Date == firstDayOfMonth, ct);
+
+            if (userMonthlyBudget == null)
+            {
+                return Result.Fail("UserMonthlyBudget not found");
+            }
+
+            if ((userMonthlyBudget.TotalBudget - userMonthlyBudget.TotalExpenses) < dto.Amount)
+            {
+                return Result.Fail("Not enough money for this transaction");
+            }
+
+            var budgetNbpRequest = await _nbpRateService.GetExchangeRateAsync(userMonthlyBudget.CurrencyCode);
+            var expensesNbpRequest = await _nbpRateService.GetExchangeRateAsync(savingGoal.CurrencyCode);
+            
+            if (budgetNbpRequest == null || expensesNbpRequest == null)
+            {
+                return Result.Fail("Exchange rate not found");
+            }
+            
+            var budgetExchangeRate = new ExchangeRate
+            {
+                CurrencyCode = userMonthlyBudget.CurrencyCode,
+                Mid = budgetNbpRequest.Mid,
+                Date = budgetNbpRequest.Date
+            };
+
+            var targetExchangeRate = new ExchangeRate
+            {
+                CurrencyCode = savingGoal.CurrencyCode,
+                Mid = expensesNbpRequest.Mid,
+                Date = expensesNbpRequest.Date
+            };
+
+            var calculatedAmount = dto.Amount;
+            if (savingGoal.CurrencyCode != userMonthlyBudget.CurrencyCode)
+            {
+                var amountInPln = dto.Amount * budgetExchangeRate.Mid;
+                calculatedAmount = amountInPln / targetExchangeRate.Mid;
+            }
+
+            var savingGoalTransaction = new Transaction
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                UserId = user.Id,
+                UserMonthlyBudgetId = userMonthlyBudget.Id,
+                OriginalAmount = dto.Amount,
+                CalculatedAmount = calculatedAmount,
+                BudgetExchangeRate = budgetExchangeRate,
+                TargetExchangeRate = targetExchangeRate
+            };
+
+            savingGoal.Transactions?.Add(savingGoalTransaction);
+            savingGoal.AmountOfMoney -= calculatedAmount;
+            savingGoal.UpdatedAt = DateTime.UtcNow;
+
+            userMonthlyBudget.TotalExpenses += dto.Amount;
+            userMonthlyBudget.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            return Result.Ok(savingGoalTransaction.Id);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(ct);
+            return Result.Fail(ex.Message);
+        }
     }
 }

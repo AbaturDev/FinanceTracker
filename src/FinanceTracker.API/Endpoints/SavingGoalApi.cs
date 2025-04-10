@@ -1,7 +1,6 @@
-using Azure;
-using FinanceTracker.Application.Services;
 using FinanceTracker.Domain.Common.Pagination;
 using FinanceTracker.Domain.Dtos.SavingGoals;
+using FinanceTracker.Domain.Dtos.Transactions;
 using FinanceTracker.Domain.Interfaces;
 
 namespace FinanceTracker.API.Endpoints;
@@ -55,6 +54,22 @@ public static class SavingGoalApi
 
                 return result.IsSuccess ? Results.NoContent() : Results.NotFound(result.Errors);
             });
+        
+        group.MapPost("{id:int}/transactions", async (ISavingGoalService savingGoalService, CreateTransactionDto dto, int id, CancellationToken ct) =>
+        {
+            var result = await savingGoalService.AddTransactionAsync(id, dto, ct);
+
+            if (result.IsFailed)
+            {
+                var error = result.Errors.First().Message;
+
+                return error.Contains("not found")
+                    ? Results.NotFound(result.Errors)
+                    : Results.BadRequest(result.Errors);
+            }
+            
+            return Results.Created($"api/saving-goal/{result.Value}", null);
+        });
         
         return app;
     }
