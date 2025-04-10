@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace FinanceTracker.Client.Dtos.ApiRequests;
+namespace FinanceTracker.Client.Dtos.Common;
 
 public sealed record ErrorResponse
 {

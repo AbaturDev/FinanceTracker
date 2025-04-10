@@ -1,0 +1,83 @@
+@page "/incomes"
+@using FinanceTracker.Client.Dtos.Common
+@using FinanceTracker.Client.Dtos.Incomes
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IIncomeService IncomeService
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<AuthorizeView>
+    <Authorized>
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mr-3">
+                Add Income
+            </MudButton>
+            <h2 class="mx-auto">Incomes</h2>
+        </div>
+
+        <MudTable Items="_incomes.Items" ServerData="LoadIncomes" Class="mt-5">
+            <HeaderContent>
+                <MudTh>Id</MudTh>
+                <MudTh>Name</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="income">
+                <MudTd DataLabel="Id">@income.Id</MudTd>
+                <MudTd DataLabel="Name">@income.Name</MudTd>
+                <MudTd>
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open user menu" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                        <MudMenuItem Label="Edit" />
+                        <MudMenuItem Label="Delete" OnClick="@(async () => await OnButtonClicked(income.Id, new CancellationToken()))" />
+                    </MudMenu>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }"/>
+            </PagerContent>
+        </MudTable>
+    </Authorized>
+
+    <NotAuthorized>
+        <RedirectNotAuthorizedUser />
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@code {
+    private PaginatedResponse<IncomeDto> _incomes = new();
+
+    private async Task<TableData<IncomeDto>> LoadIncomes(TableState state, CancellationToken ct)
+    {
+        var pageNumber = (state.Page + 1);
+        var pageSize = state.PageSize;
+        var response = await IncomeService.GetIncomesAsync(pageNumber, pageSize, ct);
+
+        return new TableData<IncomeDto>
+        {
+            Items = response?.Items ?? new List<IncomeDto>(),
+            TotalItems = response?.TotalItemsCount ?? 0
+        };
+    }
+    
+    private async Task OnButtonClicked(int id, CancellationToken ct)
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Warning", 
+            "Are you sure you want to delete this income?", 
+            yesText: "Delete!", cancelText: "Cancel");
+
+        if (result == true)
+        {
+            var response = await IncomeService.DeleteIncomeAsync(id, ct);
+
+            if (response.IsSuccess)
+            {
+                Snackbar.Add($"Deleted income with id: {id}", Severity.Success);
+                Navigation.NavigateTo("/incomes", forceLoad:true);
+            }
+            else
+            {
+                Snackbar.Add(response.ErrorMessage, Severity.Error);
+            }
+        }
+    }}

@@ -1,5 +1,5 @@
 using FinanceTracker.Client.Dtos.Account;
-using FinanceTracker.Client.Dtos.ApiRequests;
+using FinanceTracker.Client.Dtos.Common;
 
 namespace FinanceTracker.Client.Interfaces;
 

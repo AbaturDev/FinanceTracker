@@ -2,8 +2,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
 using FinanceTracker.Client.Dtos.Account;
-using FinanceTracker.Client.Dtos.ApiRequests;
+using FinanceTracker.Client.Dtos.Common;
 using FinanceTracker.Client.Interfaces;
+using FinanceTracker.Client.Utils;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace FinanceTracker.Client.Services;
@@ -66,9 +67,7 @@ public class AuthenticationService : IAuthenticationService
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorDetails = await response.Content.ReadFromJsonAsync<List<ErrorResponse>>(cancellationToken: ct);
-
-                var errorMessage = errorDetails?[0].Message ?? "Failed to register account"; 
+                var errorMessage = await GetErrorMessageUtils.GetErrorMessage(response, ct) ?? "Failed to register account"; 
                 
                 return new RequestResult(false, errorMessage);
             }

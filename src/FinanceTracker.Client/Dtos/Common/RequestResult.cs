@@ -1,3 +1,3 @@
-namespace FinanceTracker.Client.Dtos.ApiRequests;
+namespace FinanceTracker.Client.Dtos.Common;
 
 public sealed record RequestResult(bool IsSuccess, string ErrorMessage = "");
