@@ -36,24 +36,23 @@ public class SavingGoalService : ISavingGoalService
         
         var totalItemCount = await baseQuery.CountAsync(ct);
 
-        var goal = await baseQuery
+        var savingGoals = await baseQuery
             .Select(e => new SavingGoalDto
             {
                 Id = e.Id,
                 CreatedAt = e.CreatedAt,
                 UpdatedAt = e.UpdatedAt,
                 Name = e.Name,
-                CurrentBalance = e.CurrentBalance,
                 AmountOfMoney = e.AmountOfMoney,
                 Goal = e.Goal,
                 DueDate = e.DueDate,
-                // OriginalExchangeRate = ExchangeRateMapper.MapToExchangeRateDto(e.OriginalExchangeRate),
+                CurrencyCode = e.CurrencyCode,
                 UserId = e.UserId,
             })
             .Paginate(filter.PageNumber, filter.PageSize)
             .ToListAsync(ct);
         
-        var result = new PaginatedResponse<SavingGoalDto>(goal, filter.PageNumber, filter.PageSize, totalItemCount);
+        var result = new PaginatedResponse<SavingGoalDto>(savingGoals, filter.PageNumber, filter.PageSize, totalItemCount);
         
         return Result.Ok(result);
     }
@@ -117,8 +116,7 @@ public class SavingGoalService : ISavingGoalService
             Goal = dto.Goal,
             User = user,
             UserId = user.Id,
-            CurrencyCode = dto.CurrencyCode,
-            CurrentBalance = dto.CurrentBalance,
+            CurrencyCode = dto.CurrencyCode ?? user.CurrencyCode,
             AmountOfMoney = dto.AmountOfMoney,
             DueDate = dto.DueDate,
         };
@@ -149,11 +147,6 @@ public class SavingGoalService : ISavingGoalService
         if (!string.IsNullOrEmpty(dto.Goal))
         {
             savingGoal.Goal = dto.Goal;
-        }
-
-        if (dto.CurrentBalance != null)
-        {
-            savingGoal.CurrentBalance = dto.CurrentBalance.Value;
         }
 
         if (dto.AmountOfMoney != null)
