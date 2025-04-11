@@ -8,6 +8,7 @@ public sealed record SavingGoalDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public required string Name { get; set; }
+    public decimal CurrentBalance { get; set; }
     public decimal AmountOfMoney { get; set; }
     public required string Goal { get; set; }
     public DateOnly? DueDate { get; set; }

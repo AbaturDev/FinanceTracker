@@ -43,6 +43,7 @@ public class SavingGoalService : ISavingGoalService
                 CreatedAt = e.CreatedAt,
                 UpdatedAt = e.UpdatedAt,
                 Name = e.Name,
+                CurrentBalance = e.CurrentBalance,
                 AmountOfMoney = e.AmountOfMoney,
                 Goal = e.Goal,
                 DueDate = e.DueDate,
@@ -264,7 +265,7 @@ public class SavingGoalService : ISavingGoalService
             };
 
             savingGoal.Transactions?.Add(savingGoalTransaction);
-            savingGoal.AmountOfMoney -= calculatedAmount;
+            savingGoal.CurrentBalance += calculatedAmount;
             savingGoal.UpdatedAt = DateTime.UtcNow;
 
             userMonthlyBudget.TotalExpenses += dto.Amount;
