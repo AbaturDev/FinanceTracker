@@ -18,10 +18,12 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMudServices();
+builder.Services.AddMudBlazorDialog();
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAddBearerTokenService, AddBearerTokenService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<IIncomeService, IncomeService>();
 
 builder.Services.AddAuthorizationCore();
 

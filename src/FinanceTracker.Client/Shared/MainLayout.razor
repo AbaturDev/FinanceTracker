@@ -11,6 +11,12 @@
             </div>
 
             <main>
+                <MudThemeProvider />
+                <MudPopoverProvider />
+                <MudDialogProvider
+                    FullWidth="true"
+                    MaxWidth="MaxWidth.Medium"/>
+                <MudSnackbarProvider />
                 <div class="top-row px-4">
                     <MudButton StartIcon="@Icons.Material.Filled.Logout" OnClick="Logout" Class="d-flex align-items-center gap-2">
                         Logout
@@ -25,21 +31,17 @@
     </Authorized>
 
     <NotAuthorized>
+        <MudThemeProvider />
+        <MudPopoverProvider />
+        <MudDialogProvider
+            FullWidth="true"
+            MaxWidth="MaxWidth.Medium"/>
+        <MudSnackbarProvider />
         <LayoutView Layout="@typeof(NoMenuLayout)">
             @Body
         </LayoutView>
     </NotAuthorized>
 </AuthorizeView>
-
-@* Required *@
-<MudThemeProvider />
-<MudPopoverProvider />
-
-@* Needed for dialogs *@
-<MudDialogProvider />
-
-@* Needed for snackbars *@
-<MudSnackbarProvider />
 
 @code{
     private async Task Logout()

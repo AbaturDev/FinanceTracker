@@ -1,0 +1,51 @@
+@using FinanceTracker.Client.Dtos.Incomes
+@inject IIncomeService IncomeService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            <MudText Class="mt-1" Style="text-align: center;" Color="Color.Info">
+                Change only the fields you want to update
+            </MudText>            
+            <MudForm @ref="_from" @bind-IsValid="_isValid">
+                <MudTextField @bind-Value="_incomeDto.Name" Label="Name"> </MudTextField>
+                <MudNumericField T="decimal?" @bind-Value="_incomeDto.Amount" Label="Amount of money" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2"/>
+                <MudSwitch T="bool?" @bind-Value="_incomeDto.IsActive" Label="Is active this month" Color="Color.Primary"> </MudSwitch>
+            </MudForm >
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Class="d-flex justify-content-start" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SubmitForm" Disabled="!_isValid">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private UpdateIncomeDto _incomeDto = new();
+    private MudForm _from;
+    private bool _isValid = false;
+    
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    private async Task SubmitForm()
+    {
+        _incomeDto.IsActive ??= false;
+        Console.WriteLine(_incomeDto);
+        var result = await IncomeService.UpdateIncomeAsync(_incomeDto,Id, new CancellationToken());
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Successfully updated income", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add($"Fail to update income - {result.ErrorMessage}", Severity.Error);
+            MudDialog.Cancel();
+        }
+    }
+    
+    void Cancel() => MudDialog.Cancel();
+    
+}
