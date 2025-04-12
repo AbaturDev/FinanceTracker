@@ -1,5 +1,50 @@
-<h3>AddIncomeComponent</h3>
+@using FinanceTracker.Client.Common
+@using FinanceTracker.Client.Dtos.Incomes
+@inject IIncomeService IncomeService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="_incomeDto" IsValid="@_isValid">
+            <MudTextField @bind-Value="_incomeDto.Name" Label="Name" Required="true" RequiredError="Name is required"/>
+            <MudTextField @bind-Value="_incomeDto.Amount" Label="Amount" Required="true" RequiredError="Amount is required" Type="number"/>
+            <MudSwitch T="bool" @bind-Checked="_incomeDto.IsActive" Required="true" Label="Active"/>
+            <MudSelect @bind-Value="_incomeDto.CurrencyCode" Required="false" Label="Currency">
+                @foreach (var currency in CurrencyCodeTable.Currencies)
+                {
+                    <MudSelectItem Value="@currency">@currency</MudSelectItem>
+                }
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="SubmitForm" Disabled="!_isValid" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    private CreateIncomeDto _incomeDto = new();
+    private bool _isValid = false;
+    
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+
+    private async Task SubmitForm()
+    {
+        if (_isValid)
+        {
+            var result = await IncomeService.CreateIncomeAsync(_incomeDto, new CancellationToken());
+
+            if (result.IsSuccess)
+            {
+                MudDialog.Close(true);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
     
 }
