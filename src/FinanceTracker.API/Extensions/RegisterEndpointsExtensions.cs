@@ -10,6 +10,7 @@ public static class RegisterEndpointsExtensions
             .MapAccountsApi()
             .MapExpensesPlannersApi()
             .MapIncomesApi()
-            .MapUserMonthlyBudgetsApi();
+            .MapUserMonthlyBudgetsApi()
+            .MapSavingGoalsApi();
     }
 }
