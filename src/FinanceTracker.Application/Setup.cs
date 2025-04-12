@@ -28,5 +28,6 @@ public static class Setup
         builder.Services.AddScoped<IExpensesPlannerService, ExpensesPlannerService>();
         builder.Services.AddScoped<IIncomeService, IncomeService>();
         builder.Services.AddScoped<IUserMonthlyBudgetService, UserMonthlyBudgetService>();
+        builder.Services.AddScoped<ISavingGoalService, SavingGoalService>();
     }
 }

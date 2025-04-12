@@ -93,7 +93,7 @@ public static class ExpensesPlannersApi
                     : Results.BadRequest(result.Errors);
             }
             
-            return Results.Created($"api/expenses-planner/{result.Value}", null);
+            return Results.Created($"api/expenses-planner/{id}/transactions/{result.Value}", null);
         })
         .Produces(StatusCodes.Status201Created)
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
