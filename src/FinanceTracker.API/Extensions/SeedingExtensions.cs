@@ -5,12 +5,12 @@ namespace FinanceTracker.API.Extensions;
 
 public static class SeedingExtensions
 {
-    private const int PlannersCount = 3;
-    private const int IncomesCount = 3;
-    private const int GoalsCount = 3;
-    private const int TransactionsCount = 3;
-    private const int BudgetsCount = 3;
-    private const int UsersCount = 3;
+    private const int PlannersCount = 100;
+    private const int IncomesCount = 100;
+    private const int GoalsCount = 100;
+    private const int TransactionsCount = 100;
+    private const int BudgetsCount = 100;
+    private const int UsersCount = 100;
     
     public static WebApplication Seed(this WebApplication app)
     {
@@ -20,12 +20,12 @@ public static class SeedingExtensions
 
             context.Database.EnsureCreated();
 
+            UsersSeeder.Seed(context, UsersCount);
             ExpensesPlannersSeeder.Seed(context, PlannersCount);
             IncomesSeeder.Seed(context, IncomesCount);
             SavingGoalsSeeder.Seed(context, GoalsCount);
-            TransactionsSeeder.Seed(context, TransactionsCount);
             UserMonthlyBudgetsSeeder.Seed(context, BudgetsCount);
-            UsersSeeder.Seed(context, UsersCount);
+            TransactionsSeeder.Seed(context, TransactionsCount);
         }
         
         return app;

@@ -3,32 +3,30 @@ using FinanceTracker.Domain.Entities;
 using FinanceTracker.Domain.Entities.Owned;
 using FinanceTracker.Infrastructure.Context;
 
-namespace FinanceTracker.Application.Seeders
+namespace FinanceTracker.Application.Seeders;
+
+public class ExpensesPlannersSeeder
 {
-    public class ExpensesPlannersSeeder
+    public static void Seed(FinanceTrackerDbContext dbContext, int plannersCount)
     {
-        public static void Seed(FinanceTrackerDbContext dbContext, int plannersCount)
+        if (dbContext.ExpensesPlanners.Any())
         {
-            if (dbContext.ExpensesPlanners.Any())
-            {
-                return;
-            }
-
-            var sampleUsers = dbContext.Users.ToList();
-
-            var faker = new Faker<ExpensesPlanner>()
-                .RuleFor(u => u.Name, f => f.Name.FirstName())
-                .RuleFor(u => u.Budget, f => f.Finance.Amount())
-                .RuleFor(u => u.SpentAmount, f => f.Finance.Amount())
-                .RuleFor(u => u.CurrencyCode, f => f.PickRandom(sampleUsers).CurrencyCode)
-                .RuleFor(u => u.Category, f => f.PickRandom<Category>())
-                .RuleFor(u => u.UserId, f => f.PickRandom(sampleUsers).Id)
-                .RuleFor(u => u.User, f => f.PickRandom(sampleUsers));
-
-            var expensesPlanners = faker.Generate(plannersCount);
-
-            dbContext.ExpensesPlanners.AddRange(expensesPlanners);
-            dbContext.SaveChanges();
+            return;
         }
+
+        var sampleUsers = dbContext.Users.ToList();
+
+        var faker = new Faker<ExpensesPlanner>()
+            .RuleFor(u => u.Name, f => f.Name.FirstName())
+            .RuleFor(u => u.Budget, f => f.Finance.Amount())
+            .RuleFor(u => u.SpentAmount, f => f.Finance.Amount())
+            .RuleFor(u => u.CurrencyCode, f => f.PickRandom(sampleUsers).CurrencyCode)
+            .RuleFor(u => u.UserId, f => f.PickRandom(sampleUsers).Id)
+            .RuleFor(u => u.User, f => f.PickRandom(sampleUsers));
+
+        var expensesPlanners = faker.Generate(plannersCount);
+
+        dbContext.ExpensesPlanners.AddRange(expensesPlanners);
+        dbContext.SaveChanges();
     }
 }
