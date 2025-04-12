@@ -17,10 +17,10 @@ public static class IncomesApi
         {
             var result = await incomeService.GetIncomesAsync(filter, ct);
             
-            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Errors);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
         })
         .Produces<PaginatedResponse<IncomeDto>>(StatusCodes.Status200OK, "application/json")
-        .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
+        .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("GetIncomes")
         .WithSummary("Retrieves a paginated list of incomes.")
         .WithDescription("Returns a list of incomes based on the provided pagination filter.")

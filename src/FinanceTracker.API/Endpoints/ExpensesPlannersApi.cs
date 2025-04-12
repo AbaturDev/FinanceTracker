@@ -18,10 +18,10 @@ public static class ExpensesPlannersApi
         {
             var result = await expensesPlannerService.GetExpensesPlannersAsync(filter, ct);
             
-            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Errors);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
         })
         .Produces<PaginatedResponse<ExpensesPlannerDto>>(StatusCodes.Status200OK, "application/json")
-        .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
+        .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("GetExpensesPlanners")
         .WithSummary("Retrieves a paginated list of expenses planners.")
         .WithDescription("Returns a paginated list of all expenses planners that match the given filter.")

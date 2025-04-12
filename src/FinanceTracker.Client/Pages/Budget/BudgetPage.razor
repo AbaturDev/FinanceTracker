@@ -1,0 +1,41 @@
+@page "/budgets"
+
+@using FinanceTracker.Client.Dtos.Budgets
+@inject IUserMonthlyBudgetService BudgetService
+
+<MudCard Class="mx-auto mt-6 d-flex flex-column justify-content-center align-items-center" Style="width: 500px; height: 250px;">
+    <MudCardHeader Class="justify-content-center">
+        <CardHeaderContent>
+            <MudText Typo="Typo.h4" Align="Align.Center"> User budget specification </MudText>            
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent Class="px-4 pb-0">
+        @if (_userMonthlyBudgetDto is not null)
+        {
+            <MudText Typo="Typo.h5" Class="mb-1"> @_userMonthlyBudgetDto.Name</MudText>
+            <MudText Typo="Typo.subtitle1" Class="mb-1 mt-3"><b>Total Budget:</b> @_userMonthlyBudgetDto.TotalBudget.ToString("F2") @_userMonthlyBudgetDto.CurrencyCode</MudText>
+            <MudText Typo="Typo.subtitle1" Class="mb-1"><b>Total Expenses:</b> @_userMonthlyBudgetDto.TotalExpenses.ToString("F2") @_userMonthlyBudgetDto.CurrencyCode</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1" Class="text-center my-4">No budget data available.</MudText>
+        }
+    </MudCardContent>
+    <MudCardActions>
+        
+    </MudCardActions>
+</MudCard>
+
+@code {
+    private UserMonthlyBudgetDto? _userMonthlyBudgetDto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await BudgetService.GetUserCurrentMonthlyBudgetAsync(new CancellationToken());
+
+        if (result is not null)
+        {
+            _userMonthlyBudgetDto = result;
+        }
+    }
+}
