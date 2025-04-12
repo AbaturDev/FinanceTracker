@@ -16,23 +16,30 @@
             </MudButton>
             <h2 class="mx-auto">Incomes</h2>
         </div>
-        <MudTable Items="_incomes.Items" ServerData="LoadIncomes" Class="mt-5">
+        <MudTable @ref="_table" Items="_incomes.Items" ServerData="LoadIncomes" Class="mt-5" Style="position: relative">
             <HeaderContent>
-                <MudTh>Id</MudTh>
-                <MudTh>Name</MudTh>
+                <MudTh Style="width: 19%;">Name</MudTh>
+                <MudTh Style="width: 19%;">Amount of money</MudTh>
+                <MudTh Style="width: 19%;">Is active</MudTh>
+                <MudTh Style="width: 19%;">Id</MudTh>
+                <MudTh Style="width: 19%;">Currency</MudTh>
+                <MudTh Class="text-end" Style="width: 5%;">Actions</MudTh>
             </HeaderContent>
             <RowTemplate Context="income">
-                <MudTd DataLabel="Id">@income.Id</MudTd>
                 <MudTd DataLabel="Name">@income.Name</MudTd>
-                <MudTd>
-                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open user menu" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Class="mud-popover-position-override">
-                        <MudMenuItem Label="Edit"/>
-                        <MudMenuItem Label="Delete" OnClick="@(async () => await OnButtonClicked(income.Id, new CancellationToken()))"/> 
+                <MudTd DataLabel="Amount of money">@income.Amount</MudTd>
+                <MudTd DataLabel="Is active">@income.IsActive</MudTd>
+                <MudTd DataLabel="Id">@income.Id</MudTd>
+                <MudTd DataLabel="Currency">@income.CurrencyCode</MudTd>
+                <MudTd DataLabel="Actions">
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open user menu" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter">
+                        <MudMenuItem OnClick="@(async () => await OpenEditIncomeDialog(income.Id))"> Edit </MudMenuItem>
+                        <MudMenuItem OnClick="@(async () => await OnButtonClicked(income.Id, new CancellationToken()))"> Delete </MudMenuItem>
                     </MudMenu>
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager PageSizeOptions="new [] { 10, 25, 50, 100 }"/>
+                <MudTablePager PageSizeOptions="new [] { 10, 25, 50, 100 }" Class="position-relative"/>
             </PagerContent>
         </MudTable>
     </Authorized>
@@ -45,10 +52,11 @@
 
 @code {
     private PaginatedResponse<IncomeDto> _incomes = new();
+    private MudTable<IncomeDto> _table;
 
     private async Task<TableData<IncomeDto>> LoadIncomes(TableState state, CancellationToken ct)
     {
-        var pageNumber = (state.Page + 1);
+        var pageNumber = state.Page + 1;
         var pageSize = state.PageSize;
         var response = await IncomeService.GetIncomesAsync(pageNumber, pageSize, ct);
 
@@ -73,7 +81,7 @@
             if (response.IsSuccess)
             {
                 Snackbar.Add($"Deleted income with id: {id}", Severity.Success);
-                Navigation.NavigateTo("/incomes", forceLoad:true);
+                await _table.ReloadServerData();
             }
             else
             {
@@ -82,13 +90,28 @@
         }
     }
 
-    private async Task OpenIncomeDialog()
+    private async Task OpenEditIncomeDialog(int id)
     {
-        var parameters = new DialogParameters();
-        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
-
-        var dialog = await DialogService.ShowAsync(typeof(AddIncomeComponent),"Add Income", parameters, options);
+        var parameters = new DialogParameters
+        {
+            { "Id", id }
+        };
+        
+        var dialog = await DialogService.ShowAsync(typeof(UpdateIncomeComponent),$"Edit Income {id}", parameters);
         var result = await dialog.Result;
+        if (result != null && !result.Canceled)
+        {
+            await _table.ReloadServerData();
+        }
     }
 
+    private async Task OpenIncomeDialog()
+    {
+        var dialog = await DialogService.ShowAsync(typeof(AddIncomeComponent),"Add Income");
+        var result = await dialog.Result;
+        if (result != null && !result.Canceled)
+        {
+            await _table.ReloadServerData();
+        }
+    }
 }

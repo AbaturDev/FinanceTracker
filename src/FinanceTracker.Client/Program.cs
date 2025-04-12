@@ -18,6 +18,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMudServices();
+builder.Services.AddMudBlazorDialog();
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAddBearerTokenService, AddBearerTokenService>();

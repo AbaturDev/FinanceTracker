@@ -103,10 +103,3 @@ a, .btn-link {
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
-
-.mud-popover-position-override {
-    position: absolute !important;
-    top: 20px;  /* Adjust this value to align the popover */
-    left: 0;    /* Adjust this value to align the popover */
-    z-index: 9999;
-}
