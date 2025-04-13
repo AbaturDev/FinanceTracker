@@ -27,13 +27,14 @@
             </HeaderContent>
             <RowTemplate Context="income">
                 <MudTd DataLabel="Name">@income.Name</MudTd>
-                <MudTd DataLabel="Amount of money">@income.Amount</MudTd>
+                <MudTd DataLabel="Amount of money">@income.Amount @income.CurrencyCode</MudTd>
                 <MudTd DataLabel="Is active">@income.IsActive</MudTd>
                 <MudTd DataLabel="Id">@income.Id</MudTd>
                 <MudTd DataLabel="Currency">@income.CurrencyCode</MudTd>
                 <MudTd DataLabel="Actions">
                     <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="Open user menu" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter">
                         <MudMenuItem OnClick="@(async () => await OpenEditIncomeDialog(income.Id))"> Edit </MudMenuItem>
+                        <MudDivider/>
                         <MudMenuItem OnClick="@(async () => await OnButtonClicked(income.Id, new CancellationToken()))"> Delete </MudMenuItem>
                     </MudMenu>
                 </MudTd>
