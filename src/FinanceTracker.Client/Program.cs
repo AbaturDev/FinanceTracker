@@ -26,6 +26,7 @@ builder.Services.AddScoped<IAddBearerTokenService, AddBearerTokenService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<IUserMonthlyBudgetService, UserMonthlyBudgetService>();
+builder.Services.AddScoped<IExpensesPlannerService, ExpensesPlannerService>();
 
 builder.Services.AddAuthorizationCore();
 
