@@ -1,5 +1,5 @@
-@using FinanceTracker.Client.Dtos.Incomes
-@inject IIncomeService IncomeService
+@using FinanceTracker.Client.Dtos.ExpensesPlanners
+@inject IExpensesPlannerService ExpensesPlannerService
 @inject ISnackbar Snackbar
 
 <MudDialog>
@@ -9,9 +9,9 @@
                 Change only the fields you want to update
             </MudText>            
             <MudForm @ref="_from" @bind-IsValid="_isValid">
-                <MudTextField @bind-Value="_incomeDto.Name" Label="Name"> </MudTextField>
-                <MudNumericField T="decimal?" @bind-Value="_incomeDto.Amount" Label="Amount of money" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2"/>
-                <MudSwitch T="bool?" @bind-Value="_incomeDto.IsActive" Label="Is active this month" Color="Color.Primary"> </MudSwitch>
+                <MudTextField @bind-Value="_expensesPlannerDto.Name" Label="Name"> </MudTextField>
+                <MudNumericField T="decimal?" @bind-Value="_expensesPlannerDto.Budget" Label="Budget" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2"/>
+                <MudTextField @bind-Value="_expensesPlannerDto.CategoryName" Label="Category name"> </MudTextField>
             </MudForm >
         </MudContainer>
     </DialogContent>
@@ -22,7 +22,7 @@
 </MudDialog>
 
 @code {
-    private UpdateIncomeDto _incomeDto = new();
+    private UpdateExpensesPlannerDto _expensesPlannerDto = new();
     private MudForm _from;
     private bool _isValid = false;
     
@@ -31,16 +31,15 @@
 
     private async Task SubmitForm()
     {
-        _incomeDto.IsActive ??= false;
-        var result = await IncomeService.UpdateIncomeAsync(_incomeDto,Id, new CancellationToken());
+        var result = await ExpensesPlannerService.UpdateExpensesPlannerAsync(_expensesPlannerDto,Id, new CancellationToken());
         if (result.IsSuccess)
         {
-            Snackbar.Add("Successfully updated income", Severity.Success);
+            Snackbar.Add("Successfully updated expenses planner", Severity.Success);
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
         {
-            Snackbar.Add($"Fail to update income - {result.ErrorMessage}", Severity.Error);
+            Snackbar.Add($"Fail to update expenses planner - {result.ErrorMessage}", Severity.Error);
             MudDialog.Cancel();
         }
     }

@@ -1,0 +1,67 @@
+@page "/expenses-planners/{id}/transactions"
+@using FinanceTracker.Client.Dtos.Common
+@using FinanceTracker.Client.Dtos.Transactions
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IExpensesPlannerService ExpensesPlannerService
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                       Color="Color.Primary"
+                       OnClick='@(() => Navigation.NavigateTo("/expenses-planners"))'
+                       AriaLabel="Back"
+                       Size="Size.Medium"
+                       Class="mr-3" />
+        <MudText Typo="Typo.h4" Align="Align.Center"> Transactions of Expenses Planner @Id</MudText>
+        <MudTable @ref="_table" ServerData="LoadIncomes" Class="mt-5" Style="position: relative">
+            <HeaderContent>
+                <MudTh Style="width: 20%;"> Name </MudTh>
+                <MudTh Style="width: 30%;"> Description </MudTh>
+                <MudTh Style="width: 20%;"> Original amount </MudTh>
+                <MudTh Style="width: 20%;"> Calculated amount </MudTh>
+                <MudTh Style="width: 10%;"> Id </MudTh>
+            </HeaderContent>
+            <RowTemplate Context="transaction">
+                <MudTd DataLabel="Name">@transaction.Name</MudTd>
+                <MudTd DataLabel="Description">@transaction.Description</MudTd>
+                <MudTd DataLabel="Original amount">@transaction.OriginalAmount @transaction.BudgetExchangeRate?.CurrencyCode</MudTd>
+                <MudTd DataLabel="Calculated amount">@transaction.CalculatedAmount @transaction.TargetExchangeRate?.CurrencyCode</MudTd>
+                <MudTd DataLabel="Id">@transaction.Id</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new [] { 10, 25, 50, 100 }" Class="position-relative"/>
+            </PagerContent>
+        </MudTable>
+    </Authorized>
+        
+    <NotAuthorized>
+        <RedirectNotAuthorizedUser/>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public string Id { get; set; }
+    private int _expensesPlannerId;
+    private PaginatedResponse<TransactionDto> _transactions = new();
+    private MudTable<TransactionDto> _table;
+    
+    protected override void OnInitialized()
+    {
+        _expensesPlannerId = int.Parse(Id);
+    }
+    
+    private async Task<TableData<TransactionDto>> LoadIncomes(TableState state, CancellationToken ct)
+    {
+        var pageNumber = state.Page + 1;
+        var pageSize = state.PageSize;
+        var response = await ExpensesPlannerService.GetExpensesPlannerTransactionsAsync(_expensesPlannerId, pageSize, pageNumber, ct);
+        Console.WriteLine(_expensesPlannerId);
+        Console.WriteLine(response);
+        return new TableData<TransactionDto>
+        {
+            Items = response?.Items ?? new List<TransactionDto>(),
+            TotalItems = response?.TotalItemsCount ?? 0
+        };
+    }
+}
