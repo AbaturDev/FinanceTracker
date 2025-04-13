@@ -1,18 +1,64 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
 
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-12">
+    <MudPaper Elevation="4" Class="p-6 rounded-xl">
+        <MudStack Spacing="3" AlignItems="AlignItems.Center" JustifyContent="Center">
+            <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Default" Class="mb-2 text-primary">
+                Welcome to <span class="fw-bold">Finance Tracker</span>!
+            </MudText>
 
-<AuthorizeView>
-    <Authorized>
-        <PageTitle>Index</PageTitle>
+            <AuthorizeView>
+                <Authorized>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center" Color="Color.Secondary">
+                        Select one of the options below:
+                    </MudText>
 
-        <h1>Hello, world!</h1>
+                    <MudDivider Class="my-2" />
 
-        Welcome to your new app.
-    </Authorized>
-    
-    <NotAuthorized>
-        <RedirectNotAuthorizedUser />
-    </NotAuthorized>
+                    <MudStack Spacing="2" Direction="Row" Wrap="Wrap.Wrap" JustifyContent="Center">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Navigation.NavigateTo("/goals"))">
+                            Saving Goals
+                        </MudButton>
 
-</AuthorizeView>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Navigation.NavigateTo("/planners"))">
+                            Expense Planners
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Navigation.NavigateTo("/incomes"))">
+                            Incomes
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Navigation.NavigateTo("/budgets"))">
+                            Monthly Budgets
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => Navigation.NavigateTo("/login"))">
+                            Log out
+                        </MudButton>
+                    </MudStack>
+                </Authorized>
+
+                <NotAuthorized>
+                    <MudText Typo="Typo.subtitle1" Align="Align.Center" Color="Color.Secondary">
+                        Please log in or sign up to continue on the site.
+                    </MudText>
+
+                    <MudDivider Class="my-2" />
+
+                    <MudStack Direction="Row" Spacing="2" JustifyContent="Center">
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(() => Navigation.NavigateTo("/login"))">
+                            Log In
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="@(() => Navigation.NavigateTo("/register"))">
+                            Sign Up
+                        </MudButton>
+                    </MudStack>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
