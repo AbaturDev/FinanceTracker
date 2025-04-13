@@ -19,10 +19,10 @@ public static class SavingGoalsApi
         {
             var result = await savingGoalService.GetSavingGoalsAsync(filter, ct);
 
-            return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Errors);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
         })
         .Produces<PaginatedResponse<SavingGoalDto>>(StatusCodes.Status200OK, "application/json")
-        .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
+        .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("GetSavingGoals")
         .WithSummary("Retrieves a paginated list of saving goals.")
         .WithDescription("Returns a paginated list of all saving goals available for the current user. Supports filtering and pagination.")

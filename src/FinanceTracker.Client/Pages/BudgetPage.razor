@@ -1,0 +1,87 @@
+@page "/budgets"
+
+@using FinanceTracker.Client.Dtos.Budgets
+@using FinanceTracker.Client.Dtos.Common
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IUserMonthlyBudgetService BudgetService
+
+<AuthorizeView>
+    <Authorized>
+        <MudCard Class="mx-auto mt-6 d-flex flex-column justify-content-center align-items-center" Style="width: 500px; height: 250px;">
+            <MudCardHeader Class="justify-content-center">
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4" Align="Align.Start"> Current budget </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent Class="px-4 pb-0">
+                @if (_userMonthlyBudgetDto is not null)
+                {
+                    <MudText Typo="Typo.h5" Class="mb-1" Color="Color.Info"> @_userMonthlyBudgetDto.Name</MudText>
+                    <MudText Typo="Typo.subtitle1" Class="mb-1 mt-3"><b>Total Budget:</b> @_userMonthlyBudgetDto.TotalBudget.ToString("F2") @_userMonthlyBudgetDto.CurrencyCode</MudText>
+                    <MudText Typo="Typo.subtitle1" Class="mb-1"><b>Total Expenses:</b> @_userMonthlyBudgetDto.TotalExpenses.ToString("F2") @_userMonthlyBudgetDto.CurrencyCode</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Class="text-center my-4">No budget data available.</MudText>
+                }
+            </MudCardContent>
+        </MudCard>
+        <MudDivider Class="mt-5"/>
+
+        <MudText Class="mt-5" Typo="Typo.h5" Align="Align.Center">
+            Budgets history from previous months
+        </MudText>
+
+        <MudTable @ref="_table" Items="_userMonthlyBudgetHistory.Items" ServerData="LoadBudgets" Class="mt-5" Style="position: relative">
+            <HeaderContent>
+                <MudTh Style="width: 30%"> Name </MudTh>
+                <MudTh Style="width: 30%"> Total budget </MudTh>
+                <MudTh Style="width: 30%"> Total expenses </MudTh>
+                <MudTh Style="width: 10%"> CurrencyCode </MudTh>
+            </HeaderContent>
+            <RowTemplate Context="budget">
+                <MudTd DataLabel="Name" Style="color: #0a53be"> @budget.Name </MudTd>
+                <MudTd DataLabel="Total budget"> @budget.TotalBudget </MudTd>
+                <MudTd DataLabel="Total expenses"> @budget.TotalExpenses </MudTd>
+                <MudTd DataLabel="Currency"> @budget.CurrencyCode </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new[] { 10, 25, 50, 100 }" Class="position-relative"/>
+            </PagerContent>
+        </MudTable>
+    </Authorized>
+    
+    <NotAuthorized>
+        <RedirectNotAuthorizedUser />
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@code {
+    private UserMonthlyBudgetDto? _userMonthlyBudgetDto;
+    private PaginatedResponse<UserMonthlyBudgetDto> _userMonthlyBudgetHistory = new();
+    private MudTable<UserMonthlyBudgetDto> _table;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await BudgetService.GetUserCurrentMonthlyBudgetAsync(new CancellationToken());
+
+        if (result is not null)
+        {
+            _userMonthlyBudgetDto = result;
+        }
+    }
+
+    private async Task<TableData<UserMonthlyBudgetDto>> LoadBudgets(TableState state, CancellationToken ct)
+    {
+        var pageNumber = state.Page + 1;
+        var pageSize = state.PageSize;
+        var response = await BudgetService.GetUserMonthlyBudgetsHistoryAsync(pageSize, pageNumber, ct);
+
+        return new TableData<UserMonthlyBudgetDto>
+        {
+            Items = response?.Items ?? new List<UserMonthlyBudgetDto>(),
+            TotalItems = response?.TotalItemsCount ?? 0
+        };
+    }
+}

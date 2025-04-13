@@ -14,11 +14,13 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
 {
     private readonly FinanceTrackerDbContext _dbContext;
     private readonly INbpRateService _nbpRateService;
+    private readonly IUserContextService _userContextService;
 
-    public UserMonthlyBudgetService(FinanceTrackerDbContext dbContext, INbpRateService nbpRateService)
+    public UserMonthlyBudgetService(FinanceTrackerDbContext dbContext, INbpRateService nbpRateService, IUserContextService userContextService)
     {
         _dbContext = dbContext;
         _nbpRateService = nbpRateService;
+        _userContextService = userContextService;
     }
 
     public async Task<Result> GenerateMonthlyBudgetAsync(Guid userId, CancellationToken ct)
@@ -108,8 +110,14 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         return errors.Count == 0 ? Result.Ok() : Result.Fail(errors);
     }
 
-    public async Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudgetAsync(Guid userId, CancellationToken ct)
+    public async Task<Result<UserMonthlyBudgetDto>> GetUserCurrentMonthlyBudgetAsync(CancellationToken ct)
     {
+        var userId = _userContextService.GetCurrentUserId();
+        if (userId == null)
+        {
+            throw new ArgumentNullException(nameof(userId));
+        }
+        
         var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
 
         var userMonthlyBudget = await _dbContext.UserMonthlyBudgets
@@ -136,8 +144,15 @@ public class UserMonthlyBudgetService : IUserMonthlyBudgetService
         return Result.Ok(userMonthlyBudgetDto);
     }
 
-    public async Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistoryAsync(PageQueryFilter filter, Guid userId, CancellationToken ct)
+    public async Task<Result<PaginatedResponse<UserMonthlyBudgetDto>>> GetUserMonthlyBudgetHistoryAsync(PageQueryFilter filter, CancellationToken ct)
     {
+        var userId = _userContextService.GetCurrentUserId();
+
+        if (userId == null)
+        {
+            throw new ArgumentNullException(nameof(userId));
+        }
+        
         var beginningOfMonth = ToBeginningOfMonth(DateTime.UtcNow);
 
         var baseQuery = _dbContext.UserMonthlyBudgets

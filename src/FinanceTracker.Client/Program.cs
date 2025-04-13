@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using FinanceTracker.Client;
+using FinanceTracker.Client.Dtos.Budgets;
 using FinanceTracker.Client.Interfaces;
 using FinanceTracker.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAddBearerTokenService, AddBearerTokenService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IIncomeService, IncomeService>();
+builder.Services.AddScoped<IUserMonthlyBudgetService, UserMonthlyBudgetService>();
 
 builder.Services.AddAuthorizationCore();
 
