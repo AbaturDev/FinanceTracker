@@ -20,6 +20,6 @@ public class CreateIncomeDtoValidator : AbstractValidator<CreateIncomeDto>
         
         RuleFor(x => x.CurrencyCode)
             .NotEmpty()
-            .MaximumLength(10);
+            .MaximumLength(3);
     }
 }

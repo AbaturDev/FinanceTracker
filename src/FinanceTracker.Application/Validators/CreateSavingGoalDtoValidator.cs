@@ -35,6 +35,6 @@ public class CreateSavingGoalDtoValidator : AbstractValidator<CreateSavingGoalDt
 
         RuleFor(x => x.CurrencyCode)
             .NotEmpty()
-            .MaximumLength(10);
+            .MaximumLength(3);
     }
 }

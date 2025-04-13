@@ -44,6 +44,6 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
         
         RuleFor(x => x.CurrencyCode)
             .NotEmpty()
-            .MaximumLength(10);
+            .MaximumLength(3);
     }
 }

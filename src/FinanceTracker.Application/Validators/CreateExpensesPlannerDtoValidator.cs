@@ -27,7 +27,7 @@ public class CreateExpensesPlannerDtoValidator : AbstractValidator<CreateExpense
 
         RuleFor(x => x.CurrencyCode)
             .NotEmpty()
-            .MaximumLength(10);
+            .MaximumLength(3);
 
         RuleFor(x => x.CategoryName)
             .NotEmpty()
