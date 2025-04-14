@@ -12,7 +12,7 @@
                 <MudTextField @bind-Value="_savingGoalDto.Name" Label="Name"> </MudTextField>
                 <MudNumericField T="decimal?" @bind-Value="_savingGoalDto.AmountOfMoney" Label="Amount of money" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2"/>
                 <MudTextField @bind-Value="_savingGoalDto.Goal" Label="Goal"> </MudTextField>
-                <MudDatePicker @bind-Value="_savingGoalDto.DueDate" Label="Due date" Required="true" />
+                <MudDatePicker @bind-Date="_dueDate" Label="Due date" Required="true" />
             </MudForm >
         </MudContainer>
     </DialogContent>
@@ -26,12 +26,14 @@
     private UpdateSavingGoalDto _savingGoalDto = new();
     private MudForm _from;
     private bool _isValid = false;
+    private DateTime? _dueDate;
     
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
 
     private async Task SubmitForm()
     {
+        _savingGoalDto.DueDate = DateOnly.FromDateTime(_dueDate.Value);
         var result = await SavingGoalService.UpdateSavingGoalAsync(_savingGoalDto,Id, new CancellationToken());
         if (result.IsSuccess)
         {
