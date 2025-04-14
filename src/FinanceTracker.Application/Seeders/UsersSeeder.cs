@@ -1,24 +1,30 @@
 using Bogus;
+using FinanceTracker.Application.Common;
 using FinanceTracker.Domain.Entities;
-using FinanceTracker.Infrastructure.Context;
+using Microsoft.AspNetCore.Identity;
 
 namespace FinanceTracker.Application.Seeders;
 
-public class UsersSeeder
+public static class UsersSeeder
 {
-    public static void Seed(FinanceTrackerDbContext dbContext, int userCount)
+    private const string UserPassword = "Haslo123!";
+    public static void Seed(UserManager<User> userManager, int userCount)
     {
-        if (dbContext.Users.Any())
+        if (userManager.Users.Any())
         {
             return;
         }
 
         var faker = new Faker<User>("pl")
-            .RuleFor(u => u.CurrencyCode, "PLN");
+            .RuleFor(u => u.CurrencyCode, f => f.PickRandom(CurrencyCodeTable.Currencies))
+            .RuleFor(u => u.Email, f => f.Internet.Email())
+            .RuleFor(u => u.UserName, f => f.Person.UserName);
         
         var users = faker.Generate(userCount);
-        
-        dbContext.Users.AddRange(users);
-        dbContext.SaveChanges();
+
+        foreach (var user in users)
+        {
+            userManager.CreateAsync(user, UserPassword);
+        }
     }
 }
