@@ -1,3 +1,4 @@
+using FinanceTracker.API.Extensions;
 using FinanceTracker.Domain.Common.Pagination;
 using FinanceTracker.Domain.Dtos.UserMonthlyBudgets;
 using FinanceTracker.Domain.Interfaces;
@@ -32,6 +33,7 @@ public static class UserMonthlyBudgetsApi
 
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
         })
+        .WithRequestValidation<PageQueryFilter>()
         .Produces<PaginatedResponse<UserMonthlyBudgetDto>>(StatusCodes.Status200OK, "application/json")
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("GetUserBudgetHistory")

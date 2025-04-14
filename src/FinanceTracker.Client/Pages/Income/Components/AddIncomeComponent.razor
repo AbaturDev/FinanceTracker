@@ -9,7 +9,7 @@
             <MudForm @ref="_from" @bind-IsValid="_isValid">
                 <MudTextField @bind-Value="_incomeDto.Name" Label="Name" Required="true"> </MudTextField>
                 <MudNumericField T="decimal?" @bind-Value="_incomeDto.Amount" Label="Amount of money" Required="true" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2" />
-                <MudSwitch T="bool?" @bind-Value="_incomeDto.IsActive" Label="Is active this month" Color="Color.Primary"> </MudSwitch>
+                <MudSwitch T="bool" @bind-Value="_incomeDto.IsActive" Label="Is active this month" Color="Color.Primary"> </MudSwitch>
                 <MudSelect T="string" @bind-Value="_incomeDto.CurrencyCode" Label="Currency (optional)">
                     @foreach (var currency in CurrencyCodeTable.Currencies)
                     {
@@ -34,8 +34,8 @@
 
     private async Task SubmitForm()
     {
-        _incomeDto.IsActive ??= false;
         var result = await IncomeService.CreateIncomeAsync(_incomeDto, new CancellationToken());
+        Console.WriteLine(result.ErrorMessage);
         if (result.IsSuccess)
         {
             Snackbar.Add("Created new income", Severity.Success);

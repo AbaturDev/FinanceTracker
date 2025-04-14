@@ -1,7 +1,7 @@
 using FinanceTracker.Domain.Dtos.Transactions;
 using FluentValidation;
 
-namespace FinanceTracker.Application.Validators;
+namespace FinanceTracker.Application.Validators.Transactions;
 
 public class CreateTransactionDtoValidator : AbstractValidator<CreateTransactionDto>
 {
@@ -13,7 +13,8 @@ public class CreateTransactionDtoValidator : AbstractValidator<CreateTransaction
         
         RuleFor(x => x.Description)
             .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(200)
+            .When(x => x.Description != null);
 
         RuleFor(x => x.Amount)
             .NotEmpty()

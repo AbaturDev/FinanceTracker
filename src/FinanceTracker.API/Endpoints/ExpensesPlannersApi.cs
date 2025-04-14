@@ -1,3 +1,4 @@
+using FinanceTracker.API.Extensions;
 using FinanceTracker.Domain.Common.Pagination;
 using FinanceTracker.Domain.Dtos.ExpensesPlanners;
 using FinanceTracker.Domain.Dtos.Transactions;
@@ -20,6 +21,7 @@ public static class ExpensesPlannersApi
             
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
         })
+        .WithRequestValidation<PageQueryFilter>()
         .Produces<PaginatedResponse<ExpensesPlannerDto>>(StatusCodes.Status200OK, "application/json")
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("GetExpensesPlanners")
@@ -34,6 +36,7 @@ public static class ExpensesPlannersApi
 
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound(result.Errors);
         })
+        .WithRequestValidation<PageQueryFilter>()
         .Produces<PaginatedResponse<TransactionDto>>(StatusCodes.Status200OK, "application/json")
         .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
         .WithName("GetExpensesPlannerTransactions")
@@ -47,6 +50,7 @@ public static class ExpensesPlannersApi
             
             return result.IsSuccess ? Results.Created($"/api/expenses-planners/{result.Value}", null) : Results.BadRequest(result.Errors);
         })
+        .WithRequestValidation<CreateExpensesPlannerDto>()
         .Produces(StatusCodes.Status201Created)
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("CreateExpensesPlanner")
@@ -60,6 +64,7 @@ public static class ExpensesPlannersApi
             
             return result.IsSuccess ? Results.Ok() : Results.NotFound(result.Errors);
         })
+        .WithRequestValidation<UpdateExpensesPlannerDto>()
         .Produces(StatusCodes.Status200OK)
         .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
         .WithName("UpdateExpensesPlanner")
@@ -95,6 +100,7 @@ public static class ExpensesPlannersApi
             
             return Results.Created($"api/expenses-planner/{id}/transactions/{result.Value}", null);
         })
+        .WithRequestValidation<CreateTransactionDto>()
         .Produces(StatusCodes.Status201Created)
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
