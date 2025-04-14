@@ -27,6 +27,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<IUserMonthlyBudgetService, UserMonthlyBudgetService>();
 builder.Services.AddScoped<IExpensesPlannerService, ExpensesPlannerService>();
+builder.Services.AddScoped<ISavingGoalService, SavingGoalService>();
 
 builder.Services.AddAuthorizationCore();
 

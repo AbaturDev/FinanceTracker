@@ -1,0 +1,55 @@
+@using FinanceTracker.Client.Common
+@using FinanceTracker.Client.Dtos.SavingGoals
+@inject ISavingGoalService SavingGoalService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            <MudForm @ref="_from" @bind-IsValid="_isValid">
+                <MudTextField @bind-Value="_savingGoalDto.Name" Label="Name" Required="true"> </MudTextField>
+                <MudNumericField T="decimal?" @bind-Value="_savingGoalDto.AmountOfMoney" Label="Amount of money" Required="true" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2" />
+                <MudTextField @bind-Value="_savingGoalDto.Goal" Label="Goal" Required="true"> </MudTextField>
+                <MudDatePicker @bind-Date="_dueDate" Label="Due date" Required="true" DateFormat="dd/MM/yyyy" MinDate="DateTime.Today" OpenTo="OpenTo.Month" PickerVariant="PickerVariant.Inline" />
+                <MudSelect T="string" @bind-Value="_savingGoalDto.CurrencyCode" Label="Currency (optional)">
+                    @foreach (var currency in CurrencyCodeTable.Currencies)
+                    {
+                        <MudSelectItem Value="@currency">@currency</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudForm >
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Class="d-flex justify-content-start" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SubmitForm" Disabled="!_isValid">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private CreateSavingGoalDto _savingGoalDto = new();
+    private MudForm _from;
+    private bool _isValid = false;
+    private DateTime? _dueDate;
+    
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private async Task SubmitForm()
+    {
+        _savingGoalDto.DueDate = DateOnly.FromDateTime(_dueDate.Value);
+        var result = await SavingGoalService.CreateSavingGoalAsync(_savingGoalDto, new CancellationToken());
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Created new saving goal", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add($"Fail to create new saving goal - {result.ErrorMessage}", Severity.Error);
+            MudDialog.Cancel();
+        }
+    }
+    
+    void Cancel() => MudDialog.Cancel();
+    
+}
