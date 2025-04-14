@@ -43,4 +43,6 @@ await app.EnsureMonthlyBudgetsCreatedAsync();
 
 app.UseHangfire();
 
+app.Seed();
+
 app.Run();
