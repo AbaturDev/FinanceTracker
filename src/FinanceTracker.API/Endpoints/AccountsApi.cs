@@ -1,3 +1,4 @@
+using FinanceTracker.API.Extensions;
 using FinanceTracker.Domain.Dtos.Account;
 using FinanceTracker.Domain.Interfaces;
 using FluentResults;
@@ -19,6 +20,7 @@ public static class AccountsApi
 
             return result.IsSuccess ? Results.Ok() : Results.BadRequest(result.Errors);
         })
+        .WithRequestValidation<RegisterDto>()
         .Produces(StatusCodes.Status200OK)
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("RegisterAccount")

@@ -7,8 +7,6 @@ builder.Services.AddDatabase(builder.Configuration);
 
 builder.AddApplicationLogic(builder.Configuration);
 
-builder.Services.AddValidators();
-
 builder.Services.AddOpenApiDocumentation();
 
 builder.Services.AddJwtAuthentication(builder.Configuration);

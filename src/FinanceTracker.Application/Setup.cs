@@ -1,7 +1,9 @@
 ﻿using FinanceTracker.Application.Common;
 using FinanceTracker.Application.Services;
+using FinanceTracker.Application.Validators;
 using FinanceTracker.Domain.Interfaces;
 using FinanceTracker.NbpRates;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +24,8 @@ public static class Setup
         builder.AddNbpIntegration();
 
         builder.Services.AddSingleton(jwtOptions);
+        
+        builder.Services.AddValidatorsFromAssemblyContaining<PageQueryFilterValidator>();
 
         builder.Services.AddScoped<IAccountService, AccountService>();
         builder.Services.AddScoped<IUserContextService, UserContextService>();

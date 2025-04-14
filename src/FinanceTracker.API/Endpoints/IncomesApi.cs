@@ -1,3 +1,4 @@
+using FinanceTracker.API.Extensions;
 using FinanceTracker.Domain.Common.Pagination;
 using FinanceTracker.Domain.Dtos.Incomes;
 using FinanceTracker.Domain.Interfaces;
@@ -19,6 +20,7 @@ public static class IncomesApi
             
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Errors);
         })
+        .WithRequestValidation<PageQueryFilter>()
         .Produces<PaginatedResponse<IncomeDto>>(StatusCodes.Status200OK, "application/json")
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("GetIncomes")
@@ -32,6 +34,7 @@ public static class IncomesApi
             
             return result.IsSuccess ? Results.Created($"/api/incomes/{result.Value}", null) : Results.BadRequest(result.Errors);
         })
+        .WithRequestValidation<CreateIncomeDto>()
         .Produces(StatusCodes.Status201Created)
         .Produces<IList<IError>>(StatusCodes.Status400BadRequest, "application/json")
         .WithName("CreateIncome")
@@ -45,6 +48,7 @@ public static class IncomesApi
             
             return result.IsSuccess ? Results.Ok() : Results.NotFound(result.Errors);
         })
+        .WithRequestValidation<UpdateIncomeDto>()
         .Produces(StatusCodes.Status200OK)
         .Produces<IList<IError>>(StatusCodes.Status404NotFound, "application/json")
         .WithName("UpdateIncome")
