@@ -14,9 +14,6 @@ public class CreateIncomeDtoValidator : AbstractValidator<CreateIncomeDto>
         RuleFor(x => x.Amount)
             .NotEmpty()
             .GreaterThan(0);
-
-        RuleFor(x => x.IsActive)
-            .NotEmpty();
         
         RuleFor(x => x.CurrencyCode)
             .NotEmpty()

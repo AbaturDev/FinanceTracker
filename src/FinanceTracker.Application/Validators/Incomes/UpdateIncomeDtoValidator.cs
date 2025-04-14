@@ -16,9 +16,5 @@ public class UpdateIncomeDtoValidator : AbstractValidator<UpdateIncomeDto>
             .NotEmpty()
             .GreaterThan(0)
             .When(x => x.Amount != null);
-
-        RuleFor(x => x.IsActive)
-            .NotEmpty()
-            .When(x => x.IsActive != null);
     }
 }
