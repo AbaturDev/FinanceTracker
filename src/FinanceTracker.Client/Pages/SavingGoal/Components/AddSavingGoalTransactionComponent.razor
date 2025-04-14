@@ -1,0 +1,54 @@
+@using FinanceTracker.Client.Dtos.Transactions
+@inject ISavingGoalService SavingGoalService
+@inject IUserMonthlyBudgetService BudgetService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer>
+            <MudForm @ref="_from" @bind-IsValid="_isValid">
+                <MudTextField @bind-Value="_createTransactionDto.Name" Label="Name" Required="true"> </MudTextField>
+                <MudTextField @bind-Value="_createTransactionDto.Description" Label="Description (optional)" Required="false" Lines="8" Margin="Margin.Dense"> </MudTextField>
+                <MudNumericField T="decimal?" @bind-Value="_createTransactionDto.Amount" Label="Budget" Required="true" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2" AdornmentText="@_userCurrency"/>
+            </MudForm >
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Class="d-flex justify-content-start" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SubmitForm" Disabled="!_isValid">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private CreateTransactionDto _createTransactionDto = new();
+    private string _userCurrency;
+    private MudForm _from;
+    private bool _isValid = false;
+    
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var respone = await BudgetService.GetUserCurrentMonthlyBudgetAsync(new CancellationToken());
+        _userCurrency = respone?.CurrencyCode ?? "";
+    }
+
+    private async Task SubmitForm()
+    {
+        var result = await SavingGoalService.AddTransactionAsync(_createTransactionDto, Id, new CancellationToken());
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Created new transaction", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Snackbar.Add($"Fail to create new transaction - {result.ErrorMessage}", Severity.Error);
+            MudDialog.Cancel();
+        }
+    }
+    
+    void Cancel() => MudDialog.Cancel();
+    
+}
