@@ -1,18 +1,67 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
 
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-10">
+    <MudText Typo="Typo.h3" Align="Align.Center" Class="text-primary mb-4 fw-bold">
+        Welcome to Finance Tracker!
+    </MudText>
 
-<AuthorizeView>
-    <Authorized>
-        <PageTitle>Index</PageTitle>
+    <div class="d-flex justify-content-center mb-6">
+        <MudImage Src="images/finances.png" Alt="Finance Overview" Width="350" />
+    </div>
 
-        <h1>Hello, world!</h1>
+    <AuthorizeView>
+        <Authorized>
+            <MudGrid Justify="Justify.Center" Spacing="3">
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="p-4 d-flex flex-column align-items-center h-100" Elevation="4">
+                        <MudButton FullWidth Class="mb-2 w-100" Color="Color.Primary" Variant="Variant.Filled" OnClick="@(() => Navigation.NavigateTo("/saving-goals"))">
+                            Saving Goals
+                        </MudButton>
+                        <MudText Align="Align.Center" Class="mt-2">
+                            Track and manage your financial goals efficiently.
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
 
-        Welcome to your new app.
-    </Authorized>
-    
-    <NotAuthorized>
-        <RedirectNotAuthorizedUser />
-    </NotAuthorized>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="p-4 d-flex flex-column align-items-center h-100" Elevation="4">
+                        <MudButton FullWidth Class="mb-2 w-100" Color="Color.Secondary" Variant="Variant.Filled" OnClick="@(() => Navigation.NavigateTo("/expenses-planners"))">
+                            Expenses Planners
+                        </MudButton>
+                        <MudText Align="Align.Center" Class="mt-2">
+                            Plan upcoming expenses to stay on budget.
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
 
-</AuthorizeView>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="p-4 d-flex flex-column align-items-center h-100" Elevation="4">
+                        <MudButton FullWidth Class="mb-2 w-100" Color="Color.Info" Variant="Variant.Filled" OnClick="@(() => Navigation.NavigateTo("/budgets"))">
+                            Monthly Budgets
+                        </MudButton>
+                        <MudText Align="Align.Center" Class="mt-2">
+                            Review and adjust your monthly income and expense allocations.
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="3">
+                    <MudPaper Class="p-4 d-flex flex-column align-items-center h-100" Elevation="4">
+                        <MudButton FullWidth Class="mb-2 w-100" Color="Color.Success" Variant="Variant.Filled" OnClick="@(() => Navigation.NavigateTo("/incomes"))">
+                            Incomes
+                        </MudButton>
+                        <MudText Align="Align.Center" Class="mt-2">
+                            Add, view, and manage your income sources and details.
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </Authorized>
+
+        <NotAuthorized>
+            <RedirectNotAuthorizedUser />
+        </NotAuthorized>
+    </AuthorizeView>
+</MudContainer>
