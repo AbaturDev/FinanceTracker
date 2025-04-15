@@ -2,6 +2,7 @@
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
+@using FinanceTracker.Client.Common
 @using FinanceTracker.Client.Dtos.Account
 @inject IAuthenticationService AuthenticationService
 @inject ISnackbar Snackbar
@@ -26,10 +27,12 @@
                               Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
                               Validation="@(new Func<string, string>(PasswordMatch))" Required="true"
                               RequiredError="Repeat the password!" @bind-Value="registerDto.VerifyPassword" />
-                <MudTextField T="string"
-                              Label="CurrencyCode" HelperText="Chose the default currency code" InputType="InputType.Text"
-                              Required="false" @bind-Value="registerDto.CurrencyCode"
-                />
+                <MudSelect T="string" @bind-Value="registerDto.CurrencyCode" Label="Currency (optional)">
+                    @foreach (var currency in CurrencyCodeTable.Currencies)
+                    {
+                        <MudSelectItem Value="@currency">@currency</MudSelectItem>
+                    }
+                </MudSelect>
                 <div class="d-flex align-center justify-space-between">
                     <MudCheckBox T="bool" Required="true" RequiredError="You must agree" Label="I agree!"  />
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto" OnClick="Register">

@@ -8,24 +8,23 @@
             <MudText Class="mt-1" Style="text-align: center;" Color="Color.Info">
                 Change only the fields you want to update
             </MudText>            
-            <MudForm @ref="_from" @bind-IsValid="_isValid">
+            <MudForm @ref="_from">
                 <MudTextField @bind-Value="_savingGoalDto.Name" Label="Name"> </MudTextField>
                 <MudNumericField T="decimal?" @bind-Value="_savingGoalDto.AmountOfMoney" Label="Amount of money" Adornment="Adornment.End" Min="0" Step="new decimal(0.01)" Format="N2"/>
                 <MudTextField @bind-Value="_savingGoalDto.Goal" Label="Goal"> </MudTextField>
-                <MudDatePicker @bind-Date="_dueDate" Label="Due date" Required="true" />
+                <MudDatePicker @bind-Date="_dueDate" Label="Due date" TransformOrigin="Origin.TopCenter"  AnchorOrigin="Origin.BottomCenter" />
             </MudForm >
         </MudContainer>
     </DialogContent>
     <DialogActions>
         <MudButton Class="d-flex justify-content-start" OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="SubmitForm" Disabled="!_isValid">Add</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SubmitForm">Edit</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
     private UpdateSavingGoalDto _savingGoalDto = new();
     private MudForm _from;
-    private bool _isValid = false;
     private DateTime? _dueDate;
     
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
@@ -33,7 +32,8 @@
 
     private async Task SubmitForm()
     {
-        _savingGoalDto.DueDate = DateOnly.FromDateTime(_dueDate.Value);
+        DateOnly temp = DateOnly.FromDateTime(_dueDate.Value);
+        _savingGoalDto.DueDate = temp.ToString("yyyy-MM-dd");
         var result = await SavingGoalService.UpdateSavingGoalAsync(_savingGoalDto,Id, new CancellationToken());
         if (result.IsSuccess)
         {

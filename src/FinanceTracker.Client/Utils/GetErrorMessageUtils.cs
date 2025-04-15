@@ -34,7 +34,6 @@ public static class GetErrorMessageUtils
         }
         catch { /* ignore */ }
         
-        Console.WriteLine("Sperma");
         return !string.IsNullOrWhiteSpace(content)
             ? content
             : $"Unexpected error (status code {response.StatusCode})";

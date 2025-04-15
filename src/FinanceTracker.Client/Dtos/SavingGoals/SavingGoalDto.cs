@@ -9,7 +9,7 @@ public sealed record SavingGoalDto
     public decimal CurrentBalance { get; set; }
     public decimal AmountOfMoney { get; set; }
     public required string Goal { get; set; }
-    public DateOnly? DueDate { get; set; }
+    public string? DueDate { get; set; }
     public required string CurrencyCode { get; set; }
     public required Guid UserId { get; set; }
 }
