@@ -26,6 +26,7 @@
 
 ### Libraries, Tools and Frameworks
 - FluentValidation
+- FluentResults
 - HangFire
 - JwtBearer
 - Seeders using Bogus
@@ -33,6 +34,7 @@
 - ASP.NET Identity
 - Refit
 - Polly
+- Cache
 
 ## Installation & Setup
 1. **.NET SDK**
