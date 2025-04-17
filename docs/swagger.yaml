@@ -1,0 +1,1183 @@
+openapi: 3.0.4
+info:
+  title: Finance Tracker API
+  description: Documentation of finance tracker application.
+  version: v1
+paths:
+  /api/register:
+    post:
+      tags:
+        - Accounts
+      summary: Registers a new account
+      description: Creates a new user account based on the provided registration details.
+      operationId: RegisterAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  /api/login:
+    post:
+      tags:
+        - Accounts
+      summary: Logs in a user
+      description: Authenticates a user and returns a JWT token if the credentials are valid.
+      operationId: LoginAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  /api/expenses-planners:
+    get:
+      tags:
+        - ExpensesPlanners
+      summary: Retrieves a paginated list of expenses planners.
+      description: Returns a paginated list of all expenses planners that match the given filter.
+      operationId: GetExpensesPlanners
+      parameters:
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: PageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpensesPlannerDtoPaginatedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    post:
+      tags:
+        - ExpensesPlanners
+      summary: Creates a new expenses planner.
+      description: Creates an expenses planner based on the provided details and returns the created resource's location in header.
+      operationId: CreateExpensesPlanner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpensesPlannerDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+        '201':
+          description: Created
+  '/api/expenses-planners/{id}/transactions':
+    get:
+      tags:
+        - ExpensesPlanners
+      summary: Retrieves transactions for a specific expenses planner.
+      description: Returns a paginated list of transactions associated with the specified expenses planner.
+      operationId: GetExpensesPlannerTransactions
+      parameters:
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: PageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDtoPaginatedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    post:
+      tags:
+        - ExpensesPlanners
+      summary: Adds a transaction to an expenses planner.
+      description: Creates a new transaction under the specified expenses planner and returns its location.
+      operationId: AddTransactionToExpensesPlanner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransactionDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+        '201':
+          description: Created
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  '/api/expenses-planners/{id}':
+    put:
+      tags:
+        - ExpensesPlanners
+      summary: Updates an existing expenses planner.
+      description: Modifies an expenses planner with the specified ID based on the provided update details.
+      operationId: UpdateExpensesPlanner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExpensesPlannerDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    delete:
+      tags:
+        - ExpensesPlanners
+      summary: Deletes an expenses planner.
+      description: Removes the specified expenses planner from the system.
+      operationId: DeleteExpensesPlanner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  /api/incomes:
+    get:
+      tags:
+        - Incomes
+      summary: Retrieves a paginated list of incomes.
+      description: Returns a list of incomes based on the provided pagination filter.
+      operationId: GetIncomes
+      parameters:
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: PageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeDtoPaginatedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    post:
+      tags:
+        - Incomes
+      summary: Creates a new income entry.
+      description: Adds a new income record and returns its location.
+      operationId: CreateIncome
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIncomeDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+        '201':
+          description: Created
+  '/api/incomes/{id}':
+    put:
+      tags:
+        - Incomes
+      summary: Updates an existing income entry.
+      description: Modifies an existing income record based on the provided data.
+      operationId: UpdateIncome
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIncomeDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    delete:
+      tags:
+        - Incomes
+      summary: Deletes an income entry.
+      description: Removes an income record by its ID.
+      operationId: DeleteIncome
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  /api/saving-goals:
+    get:
+      tags:
+        - SavingGoals
+      summary: Retrieves a paginated list of saving goals.
+      description: Returns a paginated list of all saving goals available for the current user. Supports filtering and pagination.
+      operationId: GetSavingGoals
+      parameters:
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: PageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingGoalDtoPaginatedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    post:
+      tags:
+        - SavingGoals
+      summary: Creates a new saving goal.
+      description: Creates a new saving goal and returns the location of the newly created resource.
+      operationId: CreateSavingGoal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSavingGoalDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+        '201':
+          description: Created
+  '/api/saving-goals/{id}/transactions':
+    get:
+      tags:
+        - SavingGoals
+      summary: Gets transactions for a specific saving goal.
+      description: Retrieves a paginated list of transactions associated with a specific saving goal.
+      operationId: GetSavingGoalTransactions
+      parameters:
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: PageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDtoPaginatedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    post:
+      tags:
+        - SavingGoals
+      summary: Adds a transaction to a saving goal.
+      description: Adds a financial transaction to the specified saving goal by ID. Returns the location of the created transaction.
+      operationId: AddTransactionToSavingGoal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransactionDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+        '201':
+          description: Created
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  '/api/saving-goals/{id}':
+    put:
+      tags:
+        - SavingGoals
+      summary: Updates a saving goal.
+      description: Updates the details of a specific saving goal identified by its ID.
+      operationId: UpdateSavingGoal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSavingGoalDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/HttpValidationProblemDetails'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+    delete:
+      tags:
+        - SavingGoals
+      summary: Deletes a saving goal.
+      description: Deletes a specific saving goal by its ID if it exists.
+      operationId: DeleteSavingGoal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  /api/user-monthly-budgets/current-budget:
+    get:
+      tags:
+        - UserMonthlyBudgets
+      summary: Retrieves the current monthly budget for a user.
+      description: Returns the user's budget for the current month.
+      operationId: GetCurrentUserBudget
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMonthlyBudgetDto'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+  /api/user-monthly-budgets/budget-history:
+    get:
+      tags:
+        - UserMonthlyBudgets
+      summary: Retrieves the monthly budget history for a user.
+      description: 'Returns a paginated history of the user''s budgets from previous months without budget fromm current month '
+      operationId: GetUserBudgetHistory
+      parameters:
+        - name: PageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: PageNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMonthlyBudgetDtoPaginatedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IError'
+components:
+  schemas:
+    CategoryDto:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateExpensesPlannerDto:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        budget:
+          type: number
+          format: double
+        currencyCode:
+          type: string
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateIncomeDto:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+        isActive:
+          type: boolean
+        currencyCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateSavingGoalDto:
+      required:
+        - goal
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        amountOfMoney:
+          type: number
+          format: double
+        goal:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        currencyCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateTransactionDto:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+      additionalProperties: false
+    ExchangeRateDto:
+      type: object
+      properties:
+        currencyCode:
+          type: string
+          nullable: true
+        mid:
+          type: number
+          format: double
+        date:
+          type: string
+          format: date
+      additionalProperties: false
+    ExpensesPlannerDto:
+      required:
+        - name
+        - userId
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          nullable: true
+        budget:
+          type: number
+          format: double
+        spentAmount:
+          type: number
+          format: double
+        currencyCode:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/CategoryDto'
+        userId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    ExpensesPlannerDtoPaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpensesPlannerDto'
+          nullable: true
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalItemsCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+    HttpValidationProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          nullable: true
+      additionalProperties: { }
+    IError:
+      type: object
+      properties:
+        message:
+          type: string
+          nullable: true
+          readOnly: true
+        metadata:
+          type: object
+          additionalProperties:
+            nullable: true
+          nullable: true
+          readOnly: true
+        reasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/IError'
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    IncomeDto:
+      required:
+        - name
+        - userId
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+        isActive:
+          type: boolean
+        currencyCode:
+          type: string
+          nullable: true
+        userId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    IncomeDtoPaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeDto'
+          nullable: true
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalItemsCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+    LoginDto:
+      required:
+        - password
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+      additionalProperties: false
+    RegisterDto:
+      required:
+        - email
+        - password
+        - username
+        - verifyPassword
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        username:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+        verifyPassword:
+          type: string
+          nullable: true
+        currencyCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    SavingGoalDto:
+      required:
+        - currencyCode
+        - goal
+        - name
+        - userId
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          nullable: true
+        currentBalance:
+          type: number
+          format: double
+        amountOfMoney:
+          type: number
+          format: double
+        goal:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        currencyCode:
+          type: string
+          nullable: true
+        userId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    SavingGoalDtoPaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SavingGoalDto'
+          nullable: true
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalItemsCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+    TransactionDto:
+      required:
+        - name
+        - userId
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        originalAmount:
+          type: number
+          format: double
+        calculatedAmount:
+          type: number
+          format: double
+        budgetExchangeRate:
+          $ref: '#/components/schemas/ExchangeRateDto'
+        targetExchangeRate:
+          $ref: '#/components/schemas/ExchangeRateDto'
+        userId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    TransactionDtoPaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionDto'
+          nullable: true
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalItemsCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+    UpdateExpensesPlannerDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        budget:
+          type: number
+          format: double
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UpdateIncomeDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+          nullable: true
+        isActive:
+          type: boolean
+          nullable: true
+      additionalProperties: false
+    UpdateSavingGoalDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        amountOfMoney:
+          type: number
+          format: double
+          nullable: true
+        goal:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+      additionalProperties: false
+    UserMonthlyBudgetDto:
+      required:
+        - currencyCode
+        - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          nullable: true
+        totalBudget:
+          type: number
+          format: double
+        totalExpenses:
+          type: number
+          format: double
+        currencyCode:
+          type: string
+          nullable: true
+        userId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    UserMonthlyBudgetDtoPaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserMonthlyBudgetDto'
+          nullable: true
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalItemsCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      description: "JWT Authorization header using the Bearer scheme.\nEnter 'Bearer' [space] and then your token in the text input below.\nExample: 'Bearer 12345abcdef'"
+      name: Authorization
+      in: header
+security:
+  - Bearer: [ ]
